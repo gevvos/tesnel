@@ -1,0 +1,26 @@
+{
+  "name": "tesnel",
+  "version": "0.0.0",
+  "description": "Project structure visualizer",
+  "main": "index.js",
+  "scripts": {
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "build": "vite build",
+    "build:watch": "vite build --watch"
+  },
+  "keywords": [],
+  "author": "Gevvos",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "oxlint": "^0.14.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.2"
+  },
+  "dependencies": {
+    "@oxc-resolver/binding-wasm32-wasi": "^2.1.1",
+    "oxc-parser": "^0.38.0",
+    "oxc-resolver": "^2.1.1"
+  }
+}
