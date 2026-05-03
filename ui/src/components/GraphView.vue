@@ -64,7 +64,13 @@ const handleBgClick = () => {
 
       <g :transform="transform">
         <!-- Directories -->
-        <g v-for="node in nodes.filter(n => n.isDirectory)" :key="node.id">
+        <g
+          v-for="node in nodes.filter(n => n.isDirectory)"
+          :key="node.id"
+          class="dir-node"
+          :class="{ selected: selectedId === node.id }"
+          @click.stop="emit('select', node.id)"
+        >
           <rect
             :x="node.x"
             :y="node.y"
@@ -177,6 +183,10 @@ const handleBgClick = () => {
 
 svg {
   display: block;
+}
+
+.dir-node {
+  cursor: pointer;
 }
 
 .dir-rect {

@@ -10,6 +10,7 @@ import SearchBar from './components/SearchBar.vue';
 
 const { data } = useData();
 const isolateMode = ref(false);
+const reach = ref(2);
 const cyclesOnly = ref(false);
 const excludeInput = ref('');
 const excludePattern = ref('');
@@ -39,15 +40,30 @@ const cycleNodeIds = computed(() => {
   return ids;
 });
 
+const getFileIdsForNode = (id: string): Set<string> => {
+  if (!id.startsWith('dir:') || !data.value) return new Set([id]);
+  const dirPath = id.slice(4) + '/';
+  return new Set(data.value.graph.nodes.filter(n => n.id.startsWith(dirPath)).map(n => n.id));
+};
+
 const connectedNodeIds = computed(() => {
   if (!isolateMode.value || !selectedId.value || !data.value) return null;
-  const ids = new Set<string>();
-  ids.add(selectedId.value);
-  for (const e of data.value.graph.edges) {
-    if (e.from === selectedId.value) ids.add(e.to);
-    if (e.to === selectedId.value) ids.add(e.from);
+  const edges = data.value.graph.edges;
+  const seedIds = getFileIdsForNode(selectedId.value);
+  const visited = new Set<string>(seedIds);
+  let frontier = new Set<string>(seedIds);
+
+  for (let hop = 1; hop < reach.value; hop++) {
+    const next = new Set<string>();
+    for (const e of edges) {
+      if (frontier.has(e.from) && !visited.has(e.to)) next.add(e.to);
+      if (frontier.has(e.to) && !visited.has(e.from)) next.add(e.from);
+    }
+    if (next.size === 0) break;
+    for (const id of next) visited.add(id);
+    frontier = next;
   }
-  return ids;
+  return visited;
 });
 
 const excludedNodeIds = computed(() => {
@@ -115,6 +131,16 @@ const handleSearch = (id: string) => {
           <input type="checkbox" v-model="isolateMode" />
           <span>Hide unrelated</span>
         </label>
+        <div v-if="isolateMode" class="reach-control">
+          <span class="reach-label">Reach: {{ reach }}</span>
+          <input
+            type="range"
+            :min="1"
+            :max="10"
+            v-model.number="reach"
+            class="reach-slider"
+          />
+        </div>
         <label v-if="data.meta.totalCycles" class="filter-toggle">
           <input type="checkbox" v-model="cyclesOnly" />
           <span>Cycles only</span>
@@ -243,6 +269,23 @@ h1 {
 
 .filter-toggle:hover {
   color: #e5e7eb;
+}
+
+.reach-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reach-label {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.reach-slider {
+  width: 80px;
+  accent-color: #3b82f6;
 }
 
 .exclude-input {

@@ -13,18 +13,35 @@ export const useSelection = (data: Ref<TesnelData | null>) => {
     hoveredId.value = id;
   };
 
+  const getFileIds = (id: string): string[] => {
+    if (!id.startsWith('dir:') || !data.value) return [id];
+
+    const dirPath = id.slice(4) + '/';
+    return data.value.graph.nodes
+      .filter(n => n.id.startsWith(dirPath))
+      .map(n => n.id);
+  };
+
   const selectedInfo = computed(() => {
     if (!selectedId.value || !data.value) return null;
 
     const id = selectedId.value;
-    const imports = data.value.graph.edges
-      .filter(e => e.from === id)
-      .map(e => e.to);
-    const importedBy = data.value.graph.edges
-      .filter(e => e.to === id)
-      .map(e => e.from);
+    const fileIds = getFileIds(id);
+    const fileIdSet = new Set(fileIds);
 
-    const inCycle = data.value.cycles.some(c => c.includes(id));
+    const imports: string[] = [];
+    const importedBy: string[] = [];
+
+    for (const e of data.value.graph.edges) {
+      if (fileIdSet.has(e.from) && !fileIdSet.has(e.to)) {
+        if (!imports.includes(e.to)) imports.push(e.to);
+      }
+      if (fileIdSet.has(e.to) && !fileIdSet.has(e.from)) {
+        if (!importedBy.includes(e.from)) importedBy.push(e.from);
+      }
+    }
+
+    const inCycle = data.value.cycles.some(c => fileIds.some(f => c.includes(f)));
 
     return { id, imports, importedBy, inCycle };
   });
@@ -33,10 +50,13 @@ export const useSelection = (data: Ref<TesnelData | null>) => {
     const active = hoveredId.value || selectedId.value;
     if (!active || !data.value) return new Set<string>();
 
+    const fileIds = getFileIds(active);
+    const fileIdSet = new Set(fileIds);
+
     const set = new Set<string>();
     for (let i = 0; i < data.value.graph.edges.length; i++) {
       const e = data.value.graph.edges[i];
-      if (e.from === active || e.to === active) {
+      if (fileIdSet.has(e.from) || fileIdSet.has(e.to)) {
         set.add(`e${i}`);
       }
     }

@@ -16,6 +16,7 @@ export const parseVueFile = (path: string): TesnelFileParseResult => {
     return {
       name: fileName,
       imports: [],
+      typeImports: [],
       reExports: [],
       errors: errors.map(e => e.message),
     };
@@ -23,7 +24,7 @@ export const parseVueFile = (path: string): TesnelFileParseResult => {
 
   const script = descriptor.scriptSetup || descriptor.script;
   if (!script) {
-    return { name: fileName, imports: [], reExports: [], errors: [] };
+    return { name: fileName, imports: [], typeImports: [], reExports: [], errors: [] };
   }
 
   const lang = script.lang || 'js';

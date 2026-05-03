@@ -190,7 +190,7 @@ export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, vi
             y: absY,
             width: n.width ?? NODE_WIDTH,
             height: n.height ?? NODE_HEIGHT,
-            isDirectory: !!n.children,
+            isDirectory: !!n.children || n.id.startsWith('dir:'),
             depth,
           });
           if (n.children) {
