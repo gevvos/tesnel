@@ -1,10 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import { resolve } from 'path';
+import { writeFileSync, unlinkSync } from 'fs';
 import { parseVueFile } from './vue-parser';
 import { buildGraph } from './graph-builder';
 
 const fixture = (...parts: string[]) =>
   resolve(__dirname, '../../../tests/fixtures/vue-project', ...parts);
+
+const tmpFiles: string[] = [];
+const writeTmpVue = (name: string, content: string): string => {
+  const path = fixture(`src/${name}`);
+  writeFileSync(path, content);
+  tmpFiles.push(path);
+  return path;
+};
+afterAll(() => { tmpFiles.forEach(f => { try { unlinkSync(f); } catch {} }); });
 
 describe('parseVueFile', () => {
   it('extracts imports from <script setup lang="ts">', () => {
@@ -22,9 +32,21 @@ describe('parseVueFile', () => {
     expect(result.imports).toContain('./composables/useFormatter');
   });
 
-  it('returns empty imports for vue file without script', () => {
-    const source = '<template><div>no script</div></template>';
-    // Can't test directly without file, tested via parseSource in integration
+  it('returns empty result with typeImports for vue file without script', () => {
+    const path = writeTmpVue('__no_script.vue', '<template><div>no script</div></template>');
+    const result = parseVueFile(path);
+
+    expect(result.imports).toEqual([]);
+    expect(result.typeImports).toEqual([]);
+    expect(result.reExports).toEqual([]);
+    expect(result.errors).toEqual([]);
+  });
+
+  it('always includes typeImports field', () => {
+    const result = parseVueFile(fixture('src/App.vue'));
+
+    expect(result.typeImports).toBeDefined();
+    expect(Array.isArray(result.typeImports)).toBe(true);
   });
 });
 

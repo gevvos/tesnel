@@ -120,4 +120,47 @@ describe('buildGraph', () => {
     const indexNode = graph.nodes.find(n => n.id === 'src/index.ts');
     expect(indexNode?.directory).toBe('src');
   });
+
+  it('distinguishes type-only imports from runtime imports', () => {
+    const { entry, root } = fixture('type-imports');
+    const graph = buildGraph(entry, root);
+
+    const nodeIds = graph.nodes.map(n => n.id).sort();
+    expect(nodeIds).toEqual(['src/index.ts', 'src/service.ts', 'src/types.ts']);
+
+    expect(graph.edges).toContainEqual({
+      from: 'src/index.ts',
+      to: 'src/service.ts',
+      type: 'static-import',
+    });
+    expect(graph.edges).toContainEqual({
+      from: 'src/index.ts',
+      to: 'src/types.ts',
+      type: 'type-import',
+    });
+    expect(graph.edges).toContainEqual({
+      from: 'src/service.ts',
+      to: 'src/types.ts',
+      type: 'type-import',
+    });
+  });
+
+  it('accepts multiple entry points', () => {
+    const root = resolve(fixturesDir, 'simple');
+    const entries = [
+      resolve(root, 'src/index.ts'),
+      resolve(root, 'src/helper.ts'),
+    ];
+    const graph = buildGraph(entries, root);
+
+    expect(graph.nodes).toHaveLength(3);
+  });
+
+  it('records parse errors without crashing', () => {
+    const root = resolve(fixturesDir, 'simple');
+    const fakeEntry = resolve(root, 'src/nonexistent.ts');
+
+    const graph = buildGraph(fakeEntry, root);
+    expect(graph.errors.length).toBeGreaterThan(0);
+  });
 });
