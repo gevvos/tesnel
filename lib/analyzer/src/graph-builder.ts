@@ -1,7 +1,9 @@
 import { dirname, extname, relative, resolve } from 'path';
+import { readFileSync } from 'fs';
 import { parseFile } from './parser';
 import { parseVueFile } from './vue-parser';
 import { resolveFilePath, initResolver } from './resolver';
+import { loadNuxtAutoImports, type AutoImportMap } from './nuxt-auto-imports';
 
 export type GraphNode = {
   id: string;
@@ -12,7 +14,7 @@ export type GraphNode = {
 export type GraphEdge = {
   from: string;
   to: string;
-  type: 'static-import' | 're-export';
+  type: 'static-import' | 're-export' | 'auto-import';
 };
 
 export type BuildGraphOptions = {
@@ -30,8 +32,12 @@ const isNodeModule = (resolvedPath: string): boolean => {
   return resolvedPath.includes('/node_modules/');
 };
 
-export const buildGraph = (entryAbsPath: string, root: string, options: BuildGraphOptions = {}): DependencyGraph => {
+export const buildGraph = (entryAbsPaths: string | string[], root: string, options: BuildGraphOptions = {}): DependencyGraph => {
   initResolver(root);
+  const autoImports = loadNuxtAutoImports(root);
+  const nuxtTypesDir = autoImports ? resolve(root, '.nuxt/types') : '';
+
+  const entries = Array.isArray(entryAbsPaths) ? entryAbsPaths : [entryAbsPaths];
   const visited = new Map<string, GraphNode>();
   const edges: GraphEdge[] = [];
   const errors: Array<{ file: string; message: string }> = [];
@@ -50,8 +56,12 @@ export const buildGraph = (entryAbsPath: string, root: string, options: BuildGra
     return node;
   };
 
-  addNode(entryAbsPath);
-  queue.push({ absPath: entryAbsPath, currentDepth: 0 });
+  for (const entry of entries) {
+    if (!visited.has(entry)) {
+      addNode(entry);
+      queue.push({ absPath: entry, currentDepth: 0 });
+    }
+  }
 
   while (queue.length > 0) {
     const { absPath, currentDepth } = queue.shift()!;
@@ -92,6 +102,43 @@ export const buildGraph = (entryAbsPath: string, root: string, options: BuildGra
 
     for (const specifier of parsed.reExports) {
       processSpecifier(specifier, 're-export');
+    }
+
+    if (autoImports) {
+      const sourceText = readFileSync(absPath, 'utf8');
+      for (const [name, importPath] of autoImports) {
+        if (sourceText.includes(name)) {
+          const resolvedAutoPath = resolve(nuxtTypesDir, importPath);
+          const ext = ['.ts', '.js', '.vue', '.mjs'];
+          let resolvedFinal: string | null = null;
+
+          for (const e of ext) {
+            const candidate = resolvedAutoPath.endsWith(e) ? resolvedAutoPath : resolvedAutoPath + e;
+            try {
+              readFileSync(candidate);
+              resolvedFinal = candidate;
+              break;
+            } catch {}
+          }
+
+          if (!resolvedFinal) {
+            const resolved = resolveFilePath(dirname(resolvedAutoPath), './' + resolvedAutoPath.split('/').pop()!);
+            if (resolved.path) resolvedFinal = resolved.path;
+          }
+
+          if (resolvedFinal && !isNodeModule(resolvedFinal) && resolvedFinal !== absPath) {
+            const toId = toRelative(resolvedFinal);
+            const alreadyHasEdge = edges.some(e => e.from === fromId && e.to === toId);
+            if (!alreadyHasEdge) {
+              edges.push({ from: fromId, to: toId, type: 'auto-import' });
+              if (!visited.has(resolvedFinal)) {
+                addNode(resolvedFinal);
+                queue.push({ absPath: resolvedFinal, currentDepth: currentDepth + 1 });
+              }
+            }
+          }
+        }
+      }
     }
   }
 
