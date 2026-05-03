@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useData } from './composables/useData';
 import { useGraph } from './composables/useGraph';
 import { useSelection } from './composables/useSelection';
@@ -9,12 +9,14 @@ import DepthSlider from './components/DepthSlider.vue';
 import SearchBar from './components/SearchBar.vue';
 
 const { data } = useData();
-const maxDepth = ref(5);
 const isolateMode = ref(false);
 const cyclesOnly = ref(false);
+const excludeInput = ref('');
+const excludePattern = ref('');
+const showTypeImports = ref(true);
 
 const maxPossibleDepth = computed(() => {
-  if (!data.value) return 5;
+  if (!data.value) return 1;
   let max = 0;
   for (const node of data.value.graph.nodes) {
     const depth = node.id.split('/').length - 1;
@@ -22,6 +24,9 @@ const maxPossibleDepth = computed(() => {
   }
   return Math.max(max, 1);
 });
+
+const maxDepth = ref(1);
+watch(maxPossibleDepth, (val) => { maxDepth.value = val; }, { immediate: true });
 
 const { selectedId, selectNode, hoverNode, selectedInfo, highlightedEdges } = useSelection(data);
 
@@ -45,18 +50,51 @@ const connectedNodeIds = computed(() => {
   return ids;
 });
 
-const visibleNodeIds = computed(() => {
-  if (connectedNodeIds.value && cycleNodeIds.value) {
-    const intersection = new Set<string>();
-    for (const id of connectedNodeIds.value) {
-      if (cycleNodeIds.value.has(id)) intersection.add(id);
+const excludedNodeIds = computed(() => {
+  if (!excludePattern.value.trim() || !data.value) return null;
+  const patterns = excludePattern.value.split(',').map(p => p.trim()).filter(Boolean);
+  if (!patterns.length) return null;
+  const excluded = new Set<string>();
+  for (const node of data.value.graph.nodes) {
+    if (patterns.some(p => node.id.includes(p))) {
+      excluded.add(node.id);
     }
-    return intersection;
   }
-  return connectedNodeIds.value || cycleNodeIds.value || null;
+  return excluded.size > 0 ? excluded : null;
 });
 
-const { layoutNodes, layoutEdges, graphWidth, graphHeight, isLoading } = useGraph(data, maxDepth, visibleNodeIds);
+const visibleNodeIds = computed(() => {
+  let ids: Set<string> | null = null;
+
+  if (connectedNodeIds.value && cycleNodeIds.value) {
+    ids = new Set<string>();
+    for (const id of connectedNodeIds.value) {
+      if (cycleNodeIds.value.has(id)) ids.add(id);
+    }
+  } else {
+    ids = connectedNodeIds.value || cycleNodeIds.value || null;
+  }
+
+  if (excludedNodeIds.value) {
+    if (ids) {
+      const filtered = new Set<string>();
+      for (const id of ids) {
+        if (!excludedNodeIds.value.has(id)) filtered.add(id);
+      }
+      return filtered;
+    }
+    if (!data.value) return null;
+    const all = new Set<string>();
+    for (const node of data.value.graph.nodes) {
+      if (!excludedNodeIds.value.has(node.id)) all.add(node.id);
+    }
+    return all;
+  }
+
+  return ids;
+});
+
+const { layoutNodes, layoutEdges, graphWidth, graphHeight, isLoading } = useGraph(data, maxDepth, visibleNodeIds, showTypeImports);
 
 const handleSearch = (id: string) => {
   selectNode(id);
@@ -81,6 +119,13 @@ const handleSearch = (id: string) => {
           <input type="checkbox" v-model="cyclesOnly" />
           <span>Cycles only</span>
         </label>
+        <input
+          v-model="excludeInput"
+          class="exclude-input"
+          placeholder="Exclude: __tests__, .spec"
+          @keydown.enter="excludePattern = excludeInput"
+          @blur="excludePattern = excludeInput"
+        />
       </div>
     </header>
 
@@ -93,6 +138,28 @@ const handleSearch = (id: string) => {
 
       <template v-else>
         <SearchBar :nodes="data.graph.nodes" @select="handleSearch" />
+
+        <div class="legend">
+          <div class="legend-item">
+            <svg width="24" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="#6b7280" stroke-width="1.5" /></svg>
+            <span>Import</span>
+          </div>
+          <div class="legend-item">
+            <svg width="24" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.6" /></svg>
+            <label class="legend-check">
+              <input type="checkbox" v-model="showTypeImports" />
+              <span>Type import</span>
+            </label>
+          </div>
+          <div class="legend-item">
+            <svg width="24" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="#ef4444" stroke-width="2" /></svg>
+            <span>Cycle</span>
+          </div>
+          <div class="legend-item">
+            <svg width="24" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="#60a5fa" stroke-width="2" /></svg>
+            <span>Selected</span>
+          </div>
+        </div>
 
         <GraphView
           :nodes="layoutNodes"
@@ -176,6 +243,58 @@ h1 {
 
 .filter-toggle:hover {
   color: #e5e7eb;
+}
+
+.exclude-input {
+  width: 180px;
+  padding: 4px 8px;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  color: #e5e7eb;
+  font-size: 12px;
+  outline: none;
+}
+
+.exclude-input:focus {
+  border-color: #3b82f6;
+}
+
+.exclude-input::placeholder {
+  color: #6b7280;
+}
+
+.legend {
+  position: absolute;
+  top: 52px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 8px 12px;
+  z-index: 10;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.legend-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.legend-check input {
+  accent-color: #3b82f6;
 }
 
 .main {

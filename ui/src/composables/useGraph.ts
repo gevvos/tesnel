@@ -100,11 +100,14 @@ const collectHiddenFiles = (tree: TreeNode[], targetDirId: string, map: Map<stri
   }
 };
 
-const buildElkEdges = (data: TesnelData, hiddenFileMap: Map<string, string>): ElkEdge[] => {
+type ElkEdgesResult = { edges: ElkEdge[]; typeOnlyEdgeIds: Set<string> };
+
+const buildElkEdges = (data: TesnelData, hiddenFileMap: Map<string, string>): ElkEdgesResult => {
   const remap = (id: string) => hiddenFileMap.get(id) ?? id;
   const seen = new Set<string>();
+  const typeOnlyEdgeIds = new Set<string>();
 
-  return data.graph.edges
+  const edges = data.graph.edges
     .map((edge, i) => {
       const from = remap(edge.from);
       const to = remap(edge.to);
@@ -112,12 +115,16 @@ const buildElkEdges = (data: TesnelData, hiddenFileMap: Map<string, string>): El
       const key = `${from}|${to}`;
       if (seen.has(key)) return null;
       seen.add(key);
-      return { id: `e${i}`, sources: [from], targets: [to] };
+      const id = `e${i}`;
+      if (edge.type === 'type-import') typeOnlyEdgeIds.add(id);
+      return { id, sources: [from], targets: [to] };
     })
     .filter((e): e is ElkEdge => e !== null);
+
+  return { edges, typeOnlyEdgeIds };
 };
 
-export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, visibleNodeIds: Ref<Set<string> | null>) => {
+export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, visibleNodeIds: Ref<Set<string> | null>, showTypeImports: Ref<boolean> = ref(true)) => {
   const layoutNodes = shallowRef<LayoutNode[]>([]);
   const layoutEdges = shallowRef<LayoutEdge[]>([]);
   const graphWidth = ref(0);
@@ -132,13 +139,16 @@ export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, vi
     const filteredTree = visibleNodeIds.value
       ? filterTree(data.value.tree, visibleNodeIds.value)
       : data.value.tree;
-    const filteredGraphEdges = visibleNodeIds.value
+    let filteredGraphEdges = visibleNodeIds.value
       ? data.value.graph.edges.filter(e => visibleNodeIds.value!.has(e.from) && visibleNodeIds.value!.has(e.to))
       : data.value.graph.edges;
+    if (!showTypeImports.value) {
+      filteredGraphEdges = filteredGraphEdges.filter(e => e.type !== 'type-import');
+    }
     const filteredData = { ...data.value, tree: filteredTree, graph: { ...data.value.graph, edges: filteredGraphEdges } };
 
     const { nodes: elkChildren, hiddenFileMap } = buildElkTree(filteredTree, 0, maxDepth.value);
-    const elkEdges = buildElkEdges(filteredData, hiddenFileMap);
+    const { edges: elkEdges, typeOnlyEdgeIds } = buildElkEdges(filteredData, hiddenFileMap);
 
     const graph: ElkGraph = {
       id: 'root',
@@ -230,6 +240,7 @@ export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, vi
               to,
               points,
               isCycle: cycleEdgeSet.has(`${from}|${to}`),
+              isTypeOnly: typeOnlyEdgeIds.has(e.id),
             });
           }
         }
@@ -253,7 +264,7 @@ export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, vi
     isLoading.value = false;
   };
 
-  watch([data, maxDepth, visibleNodeIds], computeLayout, { immediate: true });
+  watch([data, maxDepth, visibleNodeIds, showTypeImports], computeLayout, { immediate: true });
 
   return { layoutNodes, layoutEdges, graphWidth, graphHeight, isLoading };
 };

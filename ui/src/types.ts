@@ -49,4 +49,5 @@ export type LayoutEdge = {
   to: string;
   points: Array<{ x: number; y: number }>;
   isCycle: boolean;
+  isTypeOnly: boolean;
 };

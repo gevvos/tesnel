@@ -72,10 +72,18 @@ const handleBgClick = () => {
             :height="node.height"
             class="dir-rect"
             :class="{ selected: selectedId === node.id }"
-            rx="6"
+            rx="8"
+          />
+          <rect
+            :x="node.x"
+            :y="node.y"
+            :width="4"
+            :height="node.height"
+            fill="#4b5563"
+            rx="2"
           />
           <text
-            :x="node.x + 10"
+            :x="node.x + 12"
             :y="node.y + 18"
             class="dir-label"
           >{{ node.name }}</text>
@@ -90,6 +98,7 @@ const handleBgClick = () => {
           :class="{
             'edge--cycle': edge.isCycle,
             'edge--highlight': highlightedEdges.has(edge.id),
+            'edge--type': edge.isTypeOnly,
           }"
           :marker-end="edge.isCycle ? 'url(#arrow-cycle)' : highlightedEdges.has(edge.id) ? 'url(#arrow-highlight)' : 'url(#arrow)'"
           fill="none"
@@ -113,8 +122,16 @@ const handleBgClick = () => {
             class="file-rect"
             rx="4"
           />
+          <rect
+            :x="node.x"
+            :y="node.y"
+            :width="3"
+            :height="node.height"
+            :fill="node.name.endsWith('.vue') ? '#42b883' : node.name.endsWith('.ts') || node.name.endsWith('.tsx') ? '#3178c6' : '#e8d44d'"
+            rx="2"
+          />
           <text
-            :x="node.x + 8"
+            :x="node.x + 10"
             :y="node.y + 20"
             class="file-label"
           >{{ node.name }}</text>
@@ -163,9 +180,10 @@ svg {
 }
 
 .dir-rect {
-  fill: rgba(55, 65, 81, 0.3);
+  fill: rgba(55, 65, 81, 0.15);
   stroke: #4b5563;
   stroke-width: 1;
+  stroke-dasharray: 4 2;
 }
 
 .dir-rect.selected {
@@ -174,15 +192,22 @@ svg {
 }
 
 .dir-label {
-  fill: #9ca3af;
+  fill: #6b7280;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .edge {
   stroke: #6b7280;
   stroke-width: 1.5;
   transition: stroke 0.15s;
+}
+
+.edge--type {
+  stroke-dasharray: 6 3;
+  opacity: 0.6;
 }
 
 .edge--cycle {
@@ -201,8 +226,8 @@ svg {
 
 .file-rect {
   fill: #1e293b;
-  stroke: #475569;
-  stroke-width: 1;
+  stroke: #334155;
+  stroke-width: 1.5;
   transition: all 0.15s;
 }
 
