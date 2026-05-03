@@ -12,12 +12,18 @@ Understanding how files depend on each other in a large codebase is hard. IDE to
 
 **tesnel** analyzes your source code **before any build step** — no bundler, no compilation, no dev server needed. It reads raw `.ts`, `.vue`, and `.js` files, resolves imports (including tsconfig aliases and Nuxt auto-imports), and produces an interactive graph you can explore in the browser.
 
+It's fast: **290 files analyzed in ~400ms**, output is a single self-contained HTML.
+
 Use it to:
 - **Audit architecture** — see the real dependency structure, not what you think it is
 - **Find circular dependencies** — before they cause subtle bugs or prevent tree-shaking
 - **Onboard to a codebase** — understand module boundaries and key hub files at a glance
 - **Review refactors** — verify that a restructuring actually reduced coupling
 - **Filter noise** — hide test files, type-only imports, or unrelated modules to focus on what matters
+
+### For AI coding agents
+
+tesnel includes an MCP server that gives AI agents (Claude Code, etc.) structured access to the dependency graph. Without it, an agent has to read files one by one — hundreds of tool calls and tens of thousands of tokens just to understand project structure. With tesnel, one MCP call returns the full picture: what imports what, who depends on a given file, where the cycles are. It's the difference between walking through a city street by street and looking at a map.
 
 ## Features
 
