@@ -7,6 +7,7 @@ let cachedRoot: string | null = null;
 
 const findTsconfig = (root: string): string | null => {
   const candidates = [
+    join(root, '.nuxt/tsconfig.app.json'),
     join(root, 'tsconfig.json'),
     join(root, 'tsconfig.app.json'),
   ];

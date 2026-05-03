@@ -57,4 +57,15 @@ describe('parseSource', () => {
     expect(result.imports).toEqual([]);
     expect(result.reExports).toEqual([]);
   });
+
+  it('separates type-only imports from runtime imports', () => {
+    const result = parseSource('index.ts', `
+      import type { Foo } from './foo';
+      import { bar } from './bar';
+      import { type Baz, qux } from './baz';
+    `);
+
+    expect(result.typeImports).toEqual(['./foo']);
+    expect(result.imports).toEqual(['./bar', './baz']);
+  });
 });

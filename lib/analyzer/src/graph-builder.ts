@@ -14,7 +14,7 @@ export type GraphNode = {
 export type GraphEdge = {
   from: string;
   to: string;
-  type: 'static-import' | 're-export' | 'auto-import';
+  type: 'static-import' | 'type-import' | 're-export' | 'auto-import';
 };
 
 export type BuildGraphOptions = {
@@ -70,9 +70,15 @@ export const buildGraph = (entryAbsPaths: string | string[], root: string, optio
       continue;
     }
 
-    const parsed = extname(absPath) === '.vue'
-      ? parseVueFile(absPath)
-      : parseFile(absPath);
+    let parsed;
+    try {
+      parsed = extname(absPath) === '.vue'
+        ? parseVueFile(absPath)
+        : parseFile(absPath);
+    } catch (e: any) {
+      errors.push({ file: toRelative(absPath), message: e.message || 'Failed to parse' });
+      continue;
+    }
 
     if (parsed.errors.length > 0) {
       errors.push({ file: toRelative(absPath), message: parsed.errors.join('; ') });
@@ -83,7 +89,8 @@ export const buildGraph = (entryAbsPaths: string | string[], root: string, optio
     const fileDir = dirname(absPath);
 
     const processSpecifier = (specifier: string, type: GraphEdge['type']) => {
-      const resolved = resolveFilePath(fileDir, specifier);
+      const cleanSpecifier = specifier.split('?')[0];
+      const resolved = resolveFilePath(fileDir, cleanSpecifier);
       if (!resolved.path) return;
       if (isNodeModule(resolved.path)) return;
 
@@ -98,6 +105,10 @@ export const buildGraph = (entryAbsPaths: string | string[], root: string, optio
 
     for (const specifier of parsed.imports) {
       processSpecifier(specifier, 'static-import');
+    }
+
+    for (const specifier of parsed.typeImports) {
+      processSpecifier(specifier, 'type-import');
     }
 
     for (const specifier of parsed.reExports) {
