@@ -1,1 +1,9 @@
 node_modules
+dist
+*.output.json
+*.output.html
+tesnel-output.json
+tesnel-output.html
+.tmp-test
+ui/dev-data.json
+ui/dev-data.html

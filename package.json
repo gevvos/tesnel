@@ -2,25 +2,46 @@
   "name": "tesnel",
   "version": "0.0.0",
   "description": "Project structure visualizer",
-  "main": "index.js",
+  "main": "./dist/tesnel.js",
+  "bin": {
+    "tesnel": "./dist/cli.js"
+  },
+  "type": "module",
   "scripts": {
+    "dev": "tsx lib/cli/index.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "build": "vite build",
-    "build:watch": "vite build --watch"
+    "build:ui": "vite build --config ui/vite.config.ts",
+    "build": "pnpm build:ui && vite build",
+    "build:watch": "vite build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "Gevvos",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^22.10.1",
-    "oxlint": "^0.14.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.2"
+    "@types/node": "^25.6.0",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vitest/coverage-v8": "^4.1.5",
+    "oxlint": "^1.62.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^4.1.5"
   },
   "dependencies": {
-    "@oxc-resolver/binding-wasm32-wasi": "^2.1.1",
-    "oxc-parser": "^0.38.0",
-    "oxc-resolver": "^2.1.1"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@vue/compiler-sfc": "^3.5.33",
+    "cac": "^7.0.0",
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
+    "elkjs": "^0.11.1",
+    "oxc-parser": "^0.128.0",
+    "oxc-resolver": "^11.19.1",
+    "vue": "^3.5.33",
+    "zod": "^4.4.2"
   }
 }
