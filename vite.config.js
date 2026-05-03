@@ -4,23 +4,22 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   build: {
     target: 'esnext',
+    emptyOutDir: false,
     lib: {
       entry: {
         'tesnel': resolve(__dirname, 'lib/index.ts'),
+        'cli': resolve(__dirname, 'lib/cli/index.ts'),
       },
-      name: 'tesnel',
       formats: ['es'],
     },
     rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
-      external: ['vue', 'oxc-parser', 'oxc-resolver', 'fs'],
-      output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
-        globals: {
-          vue: 'Vue',
-        },
+      external: (id) => {
+        if (id.startsWith('@modelcontextprotocol/')) return true;
+        if (id.startsWith('zod')) return true;
+        return [
+          'oxc-parser', 'oxc-resolver', 'cac', '@vue/compiler-sfc',
+          'fs', 'path', 'url', 'node:fs', 'node:path', 'node:url', 'node:process',
+        ].includes(id);
       },
     },
   },

@@ -6,13 +6,13 @@ type AnalyzeProjectConfig = {
 };
 
 export const analyzeProject = async (config: AnalyzeProjectConfig) => {
-   const entryFile = resolveFilePath(process.cwd(), config.entry);
+  const entryFile = resolveFilePath(process.cwd(), config.entry);
 
-   if (!entryFile.path) {
+  if (!entryFile.path) {
     return;
-   }
+  }
 
-   const parsedFileData = await parseFile(entryFile.path);
+  const parsedFileData = parseFile(entryFile.path);
 
-   console.log(parsedFileData);
-}
+  console.log(parsedFileData);
+};
