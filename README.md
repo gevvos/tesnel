@@ -1,10 +1,23 @@
 # tesnel
 
-Static dependency graph analyzer and visualizer for TypeScript, JavaScript, and Vue projects.
+**Static source-level dependency graph analyzer and visualizer** for TypeScript, JavaScript, and Vue projects.
 
-> **tesnel** (տեսնել) — "to see" in Armenian.
+> **tesnel** (տեսնել, pronounced *tes-nel*) — "to see" in Armenian.
 
 [Русский](./README.ru.md)
+
+## Why
+
+Understanding how files depend on each other in a large codebase is hard. IDE tools show imports for one file at a time, but they don't reveal the full picture — which modules are tightly coupled, where circular dependencies hide, or how a change in one file ripples through the project.
+
+**tesnel** analyzes your source code **before any build step** — no bundler, no compilation, no dev server needed. It reads raw `.ts`, `.vue`, and `.js` files, resolves imports (including tsconfig aliases and Nuxt auto-imports), and produces an interactive graph you can explore in the browser.
+
+Use it to:
+- **Audit architecture** — see the real dependency structure, not what you think it is
+- **Find circular dependencies** — before they cause subtle bugs or prevent tree-shaking
+- **Onboard to a codebase** — understand module boundaries and key hub files at a glance
+- **Review refactors** — verify that a restructuring actually reduced coupling
+- **Filter noise** — hide test files, type-only imports, or unrelated modules to focus on what matters
 
 ## Features
 
