@@ -1,47 +1,81 @@
 {
   "name": "tesnel",
-  "version": "0.0.0",
-  "description": "Project structure visualizer",
+  "version": "0.1.0",
+  "description": "Static dependency analyzer and visualizer for TypeScript, JavaScript, and Vue projects",
+  "type": "module",
   "main": "./dist/tesnel.js",
+  "types": "./dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/tesnel.js"
+    }
+  },
   "bin": {
     "tesnel": "./dist/cli.js"
   },
-  "type": "module",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx lib/cli/index.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "build:ui": "vite build --config ui/vite.config.ts",
-    "build": "pnpm build:ui && vite build",
+    "build": "pnpm build:ui && rm -f dist/*.js dist/*.d.ts && vite build",
     "build:watch": "vite build --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "pnpm test && pnpm build"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gevvos/tesnel.git"
+  },
+  "homepage": "https://github.com/gevvos/tesnel",
+  "bugs": {
+    "url": "https://github.com/gevvos/tesnel/issues"
+  },
+  "keywords": [
+    "dependency-graph",
+    "static-analysis",
+    "typescript",
+    "vue",
+    "visualization",
+    "circular-dependencies",
+    "mcp",
+    "architecture"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "author": "Gevvos",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^25.6.0",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vitest/coverage-v8": "^4.1.5",
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
+    "elkjs": "^0.11.1",
     "oxlint": "^1.62.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
+    "vite-plugin-dts": "^5.0.0",
     "vite-plugin-singlefile": "^2.3.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "vue": "^3.5.33"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@vue/compiler-sfc": "^3.5.33",
     "cac": "^7.0.0",
-    "d3-selection": "^3.0.0",
-    "d3-zoom": "^3.0.0",
-    "elkjs": "^0.11.1",
     "oxc-parser": "^0.128.0",
     "oxc-resolver": "^11.19.1",
-    "vue": "^3.5.33",
     "zod": "^4.4.2"
   }
 }

@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { resolve } from 'path';
 
 export type AutoImportMap = Map<string, string>;
 

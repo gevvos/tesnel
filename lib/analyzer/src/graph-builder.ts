@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { parseFile } from './parser.js';
 import { parseVueFile } from './vue-parser.js';
 import { resolveFilePath, initResolver } from './resolver.js';
-import { loadNuxtAutoImports, type AutoImportMap } from './nuxt-auto-imports.js';
+import { loadNuxtAutoImports } from './nuxt-auto-imports.js';
 
 export type GraphNode = {
   id: string;
@@ -75,8 +75,8 @@ export const buildGraph = (entryAbsPaths: string | string[], root: string, optio
       parsed = extname(absPath) === '.vue'
         ? parseVueFile(absPath)
         : parseFile(absPath);
-    } catch (e: any) {
-      errors.push({ file: toRelative(absPath), message: e.message || 'Failed to parse' });
+    } catch (e: unknown) {
+      errors.push({ file: toRelative(absPath), message: e instanceof Error ? e.message : 'Failed to parse' });
       continue;
     }
 

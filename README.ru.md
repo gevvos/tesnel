@@ -1,5 +1,9 @@
 # tesnel
 
+[![npm version](https://img.shields.io/npm/v/tesnel)](https://www.npmjs.com/package/tesnel)
+[![CI](https://github.com/gevvos/tesnel/actions/workflows/ci.yml/badge.svg)](https://github.com/gevvos/tesnel/actions/workflows/ci.yml)
+[![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](./LICENSE)
+
 **Статический анализатор графа зависимостей на уровне исходного кода** с визуализацией для TypeScript, JavaScript и Vue проектов.
 
 > **tesnel** (տեսնել, произносится *тес-нел*) — «видеть» по-армянски.

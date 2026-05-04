@@ -12,7 +12,5 @@ export const analyzeProject = async (config: AnalyzeProjectConfig) => {
     return;
   }
 
-  const parsedFileData = parseFile(entryFile.path);
-
-  console.log(parsedFileData);
+  parseFile(entryFile.path);
 };

@@ -1,7 +1,14 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
+  plugins: [
+    dts({
+      include: ['lib/**/*.ts'],
+      exclude: ['lib/**/*.test.ts'],
+    }),
+  ],
   build: {
     target: 'esnext',
     emptyOutDir: false,

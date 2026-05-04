@@ -1,5 +1,6 @@
 node_modules
 dist
+coverage
 *.output.json
 *.output.html
 tesnel-output.json

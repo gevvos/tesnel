@@ -1,4 +1,4 @@
-import { parseSync } from 'oxc-parser';
+import { parseSync, type ParseResult } from 'oxc-parser';
 import { readFileSync } from 'fs';
 
 export type TesnelFileParseResult = {
@@ -14,13 +14,13 @@ const getFileNameFromPath = (path: string) => {
   return parts[parts.length - 1];
 };
 
-const extractImports = (ast: any): { imports: string[]; typeImports: string[] } => {
+const extractImports = (ast: ParseResult): { imports: string[]; typeImports: string[] } => {
   const imports: string[] = [];
   const typeImports: string[] = [];
 
   for (const imp of ast.module.staticImports) {
     const specifier = imp.moduleRequest.value;
-    const allType = imp.entries.every((e: any) => e.isType);
+    const allType = imp.entries.every((e) => e.isType);
     if (allType) {
       typeImports.push(specifier);
     } else {
@@ -31,7 +31,7 @@ const extractImports = (ast: any): { imports: string[]; typeImports: string[] } 
   return { imports, typeImports };
 };
 
-const extractReExports = (ast: any): string[] => {
+const extractReExports = (ast: ParseResult): string[] => {
   const reExports: string[] = [];
   for (const exp of ast.module.staticExports) {
     for (const entry of exp.entries) {
