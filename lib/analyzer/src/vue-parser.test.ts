@@ -1,8 +1,8 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { resolve } from 'path';
 import { writeFileSync, unlinkSync } from 'fs';
-import { parseVueFile } from './vue-parser';
-import { buildGraph } from './graph-builder';
+import { parseVueFile } from './vue-parser.js';
+import { buildGraph } from './graph-builder.js';
 
 const fixture = (...parts: string[]) =>
   resolve(__dirname, '../../../tests/fixtures/vue-project', ...parts);

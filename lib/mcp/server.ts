@@ -3,7 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 import { z } from 'zod/v4';
-import type { TesnelOutput } from '../types';
+import type { TesnelOutput } from '../types.js';
 
 const loadData = (dataPath: string): TesnelOutput => {
   if (!existsSync(dataPath)) {

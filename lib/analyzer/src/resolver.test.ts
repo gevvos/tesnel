@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { resolve } from 'path';
-import { resolveFilePath } from './resolver';
+import { resolveFilePath } from './resolver.js';
 
 const fixtureDir = resolve(__dirname, '../../../tests/fixtures/simple/src');
 

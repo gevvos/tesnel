@@ -1,9 +1,9 @@
 import { dirname, extname, relative, resolve } from 'path';
 import { readFileSync } from 'fs';
-import { parseFile } from './parser';
-import { parseVueFile } from './vue-parser';
-import { resolveFilePath, initResolver } from './resolver';
-import { loadNuxtAutoImports, type AutoImportMap } from './nuxt-auto-imports';
+import { parseFile } from './parser.js';
+import { parseVueFile } from './vue-parser.js';
+import { resolveFilePath, initResolver } from './resolver.js';
+import { loadNuxtAutoImports, type AutoImportMap } from './nuxt-auto-imports.js';
 
 export type GraphNode = {
   id: string;

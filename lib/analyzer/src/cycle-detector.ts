@@ -1,4 +1,4 @@
-import type { DependencyGraph } from './graph-builder';
+import type { DependencyGraph } from './graph-builder.js';
 
 export type Cycle = string[];
 

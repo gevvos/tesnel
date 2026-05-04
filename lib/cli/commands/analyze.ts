@@ -1,10 +1,10 @@
 import { resolve, dirname } from 'path';
 import { existsSync, statSync, readdirSync } from 'fs';
-import { resolveFilePath } from '../../analyzer/src/resolver';
-import { buildGraph } from '../../analyzer/src/graph-builder';
-import { detectCycles } from '../../analyzer/src/cycle-detector';
-import { buildOutput, writeOutput } from '../../output/json-writer';
-import { generateHtml } from '../../output/html-generator';
+import { resolveFilePath } from '../../analyzer/src/resolver.js';
+import { buildGraph } from '../../analyzer/src/graph-builder.js';
+import { detectCycles } from '../../analyzer/src/cycle-detector.js';
+import { buildOutput, writeOutput } from '../../output/json-writer.js';
+import { generateHtml } from '../../output/html-generator.js';
 
 const findProjectRoot = (startDir: string): string => {
   let dir = startDir;

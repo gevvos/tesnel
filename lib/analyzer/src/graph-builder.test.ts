@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { resolve } from 'path';
-import { buildGraph } from './graph-builder';
+import { buildGraph } from './graph-builder.js';
 
 const fixturesDir = resolve(__dirname, '../../../tests/fixtures');
 

@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs';
-import type { DependencyGraph } from '../analyzer/src/graph-builder';
-import type { Cycle } from '../analyzer/src/cycle-detector';
-import type { TesnelOutput, TreeNode } from '../types';
+import type { DependencyGraph } from '../analyzer/src/graph-builder.js';
+import type { Cycle } from '../analyzer/src/cycle-detector.js';
+import type { TesnelOutput, TreeNode } from '../types.js';
 
 type DirNode = { type: 'directory'; name: string; children: Map<string, DirNode | FileNode> };
 type FileNode = { type: 'file'; id: string; name: string };

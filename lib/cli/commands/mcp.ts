@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 import { existsSync } from 'fs';
-import { startServer } from '../../mcp/server';
+import { startServer } from '../../mcp/server.js';
 
 type McpOptions = {
   data?: string;

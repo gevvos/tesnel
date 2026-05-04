@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { resolve } from 'path';
-import { buildGraph } from './analyzer/src/graph-builder';
-import { detectCycles } from './analyzer/src/cycle-detector';
-import { buildOutput } from './output/json-writer';
-import { generateHtml } from './output/html-generator';
+import { buildGraph } from './analyzer/src/graph-builder.js';
+import { detectCycles } from './analyzer/src/cycle-detector.js';
+import { buildOutput } from './output/json-writer.js';
+import { generateHtml } from './output/html-generator.js';
 import { existsSync, unlinkSync, readFileSync } from 'fs';
 
 const fixturesDir = resolve(__dirname, '../tests/fixtures');

@@ -1,6 +1,6 @@
 import { parse as parseSFC } from '@vue/compiler-sfc';
 import { readFileSync } from 'fs';
-import { parseSource, type TesnelFileParseResult } from './parser';
+import { parseSource, type TesnelFileParseResult } from './parser.js';
 
 const getFileNameFromPath = (path: string) => {
   const parts = path.split('/');

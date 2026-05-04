@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { detectCycles } from './cycle-detector';
-import type { DependencyGraph } from './graph-builder';
+import { detectCycles } from './cycle-detector.js';
+import type { DependencyGraph } from './graph-builder.js';
 
 const makeGraph = (nodeIds: string[], edges: Array<[string, string]>): DependencyGraph => ({
   nodes: nodeIds.map(id => ({ id, absPath: `/${id}`, directory: '.' })),

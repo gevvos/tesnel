@@ -1,5 +1,5 @@
-import { parseFile } from './parser';
-import { resolveFilePath } from './resolver';
+import { parseFile } from './parser.js';
+import { resolveFilePath } from './resolver.js';
 
 type AnalyzeProjectConfig = {
   entry: string;

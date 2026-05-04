@@ -1,5 +1,5 @@
 import { ref, computed, type Ref } from 'vue';
-import type { TesnelData } from '../types';
+import type { TesnelData } from '../types.js';
 
 export const useSelection = (data: Ref<TesnelData | null>) => {
   const selectedId = ref<string | null>(null);

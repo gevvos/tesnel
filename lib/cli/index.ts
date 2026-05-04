@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import cac from 'cac';
-import { analyzeCommand } from './commands/analyze';
-import { mcpCommand } from './commands/mcp';
+import { analyzeCommand } from './commands/analyze.js';
+import { mcpCommand } from './commands/mcp.js';
 
 const cli = cac('tesnel');
 

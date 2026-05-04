@@ -1,6 +1,6 @@
 import { ref, watch, shallowRef, nextTick, type Ref } from 'vue';
 import ELK from 'elkjs/lib/elk.bundled.js';
-import type { TesnelData, LayoutNode, LayoutEdge, TreeNode } from '../types';
+import type { TesnelData, LayoutNode, LayoutEdge, TreeNode } from '../types.js';
 
 const elk = new ELK();
 

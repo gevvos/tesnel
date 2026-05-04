@@ -1,5 +1,5 @@
 import { ref, onMounted } from 'vue';
-import type { TesnelData } from '../types';
+import type { TesnelData } from '../types.js';
 
 export const useData = () => {
   const data = ref<TesnelData | null>(null);

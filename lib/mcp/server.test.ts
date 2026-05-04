@@ -3,8 +3,8 @@ import { resolve } from 'path';
 import { writeFileSync, mkdirSync } from 'fs';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createServer } from './server';
-import type { TesnelOutput } from '../types';
+import { createServer } from './server.js';
+import type { TesnelOutput } from '../types.js';
 
 const testData: TesnelOutput = {
   meta: {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { resolve } from 'path';
-import { parseFile, parseSource } from './parser';
+import { parseFile, parseSource } from './parser.js';
 
 const fixture = (...parts: string[]) =>
   resolve(__dirname, '../../../tests/fixtures', ...parts);

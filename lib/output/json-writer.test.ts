@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { resolve } from 'path';
-import { buildOutput } from './json-writer';
-import { buildGraph } from '../analyzer/src/graph-builder';
-import { detectCycles } from '../analyzer/src/cycle-detector';
+import { buildOutput } from './json-writer.js';
+import { buildGraph } from '../analyzer/src/graph-builder.js';
+import { detectCycles } from '../analyzer/src/cycle-detector.js';
 
 const fixturesDir = resolve(__dirname, '../../tests/fixtures');
 
