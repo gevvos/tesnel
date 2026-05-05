@@ -43,6 +43,7 @@ tesnel includes an MCP server that gives AI agents (Claude Code, etc.) structure
 - **Nuxt support** — detects auto-imported composables and stores via `.nuxt/types/`
 - **Nest.js support** — works out of the box with explicit imports
 - **tsconfig paths** — resolves `@/`, `~/`, and custom aliases
+- **Cycle linting** — `tesnel lint` with exit code 1 for CI pipelines
 - **MCP server** — Claude Code integration for querying the dependency graph
 - **Single HTML output** — self-contained, works offline via `file://`
 
@@ -91,6 +92,25 @@ Open `.tesnel/output.html` in any browser. No server needed.
 - **Cycles only** — show only circular dependencies
 - **Exclude** — hide files matching pattern (e.g. `__tests__, .spec`)
 - **Type imports** — toggle type-only imports (dashed lines)
+
+### Lint for circular dependencies
+
+```bash
+# Check from entry file
+tesnel lint ./src/main.ts
+
+# Check entire directory
+tesnel lint ./src
+
+# Limit traversal depth
+tesnel lint ./src --depth 3
+```
+
+Exits with code 0 if no cycles found, code 1 otherwise. Useful in CI pipelines:
+
+```yaml
+- run: tesnel lint ./src
+```
 
 ### MCP server (Claude Code)
 
