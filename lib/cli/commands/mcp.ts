@@ -7,7 +7,7 @@ type McpOptions = {
 };
 
 export const mcpCommand = async (options: McpOptions) => {
-  const dataPath = resolve(options.data || './tesnel-output.json');
+  const dataPath = resolve(options.data || '.tesnel/output.json');
 
   if (!existsSync(dataPath)) {
     console.error(`Error: tesnel data not found at "${dataPath}"`);

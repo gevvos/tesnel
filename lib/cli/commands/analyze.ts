@@ -1,5 +1,5 @@
 import { resolve, dirname } from 'path';
-import { existsSync, statSync, readdirSync } from 'fs';
+import { existsSync, statSync, readdirSync, mkdirSync } from 'fs';
 import { resolveFilePath } from '../../analyzer/src/resolver.js';
 import { buildGraph } from '../../analyzer/src/graph-builder.js';
 import { detectCycles } from '../../analyzer/src/cycle-detector.js';
@@ -78,7 +78,8 @@ export const analyzeCommand = (entry: string, options: AnalyzeOptions) => {
   const cycles = detectCycles(graph);
   const output = buildOutput(graph, cycles, entry);
 
-  const outputPath = resolve(options.output || './tesnel-output.json');
+  const outputPath = resolve(options.output || '.tesnel/output.json');
+  mkdirSync(dirname(outputPath), { recursive: true });
   writeOutput(output, outputPath);
 
   let htmlPath: string | null = null;

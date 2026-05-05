@@ -75,11 +75,11 @@ tesnel analyze ./src/main.ts --depth 3
 tesnel analyze ./src/main.ts --no-html
 ```
 
-Результат: `tesnel-output.json` + `tesnel-output.html`
+Результат: `.tesnel/output.json` + `.tesnel/output.html`
 
 ### Открыть визуализацию
 
-Откройте `tesnel-output.html` в любом браузере. Сервер не нужен.
+Откройте `.tesnel/output.html` в любом браузере. Сервер не нужен.
 
 **Управление:**
 - **Zoom** — скролл или кнопки +/-
@@ -95,7 +95,7 @@ tesnel analyze ./src/main.ts --no-html
 ### MCP сервер (Claude Code)
 
 ```bash
-# Запуск MCP сервера (читает tesnel-output.json из CWD)
+# Запуск MCP сервера (читает .tesnel/output.json из CWD)
 tesnel mcp
 
 # Или указать путь к данным

@@ -75,11 +75,11 @@ tesnel analyze ./src/main.ts --depth 3
 tesnel analyze ./src/main.ts --no-html
 ```
 
-Output: `tesnel-output.json` + `tesnel-output.html`
+Output: `.tesnel/output.json` + `.tesnel/output.html`
 
 ### Open the visualization
 
-Open `tesnel-output.html` in any browser. No server needed.
+Open `.tesnel/output.html` in any browser. No server needed.
 
 **Controls:**
 - **Zoom** — scroll or +/- buttons
@@ -95,7 +95,7 @@ Open `tesnel-output.html` in any browser. No server needed.
 ### MCP server (Claude Code)
 
 ```bash
-# Start MCP server (reads tesnel-output.json from CWD)
+# Start MCP server (reads .tesnel/output.json from CWD)
 tesnel mcp
 
 # Or specify data path
