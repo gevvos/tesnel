@@ -20,6 +20,11 @@ const findTsconfig = (root: string): string | null => {
 const createResolver = (root?: string) => {
   const options: NapiResolveOptions = {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue', '.mjs'],
+    extensionAlias: {
+      '.js': ['.ts', '.tsx', '.js'],
+      '.mjs': ['.mts', '.mjs'],
+      '.cjs': ['.cts', '.cjs'],
+    },
   };
 
   if (root) {

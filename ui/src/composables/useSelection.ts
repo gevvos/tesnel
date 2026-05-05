@@ -1,8 +1,7 @@
 import { ref, computed, type Ref } from 'vue';
-import type { TesnelData } from '../types.js';
+import type { TesnelData, LayoutEdge } from '../types.js';
 
-export const useSelection = (data: Ref<TesnelData | null>) => {
-  const selectedId = ref<string | null>(null);
+export const useSelection = (data: Ref<TesnelData | null>, layoutEdges: Ref<LayoutEdge[]>, selectedId: Ref<string | null>) => {
   const hoveredId = ref<string | null>(null);
 
   const selectNode = (id: string | null) => {
@@ -52,12 +51,12 @@ export const useSelection = (data: Ref<TesnelData | null>) => {
 
     const fileIds = getFileIds(active);
     const fileIdSet = new Set(fileIds);
+    fileIdSet.add(active);
 
     const set = new Set<string>();
-    for (let i = 0; i < data.value.graph.edges.length; i++) {
-      const e = data.value.graph.edges[i];
+    for (const e of layoutEdges.value) {
       if (fileIdSet.has(e.from) || fileIdSet.has(e.to)) {
-        set.add(`e${i}`);
+        set.add(e.id);
       }
     }
     return set;

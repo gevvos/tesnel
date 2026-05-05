@@ -29,7 +29,7 @@ const maxPossibleDepth = computed(() => {
 const maxDepth = ref(1);
 watch(maxPossibleDepth, (val) => { maxDepth.value = val; }, { immediate: true });
 
-const { selectedId, selectNode, hoverNode, selectedInfo, highlightedEdges } = useSelection(data);
+const selectedId = ref<string | null>(null);
 
 const cycleNodeIds = computed(() => {
   if (!cyclesOnly.value || !data.value || !data.value.cycles.length) return null;
@@ -111,6 +111,8 @@ const visibleNodeIds = computed(() => {
 });
 
 const { layoutNodes, layoutEdges, graphWidth, graphHeight, isLoading } = useGraph(data, maxDepth, visibleNodeIds, showTypeImports);
+
+const { selectNode, hoverNode, selectedInfo, highlightedEdges } = useSelection(data, layoutEdges, selectedId);
 
 const handleSearch = (id: string) => {
   selectNode(id);
