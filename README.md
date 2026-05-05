@@ -1,6 +1,6 @@
 # tesnel
 
-<div align="right"><a href="./README.ru.md">Русский</a> · <a href="./README.hy.md">Հայերեն</a></div>
+<div align="right"><a href="./README.ru.md">Русский</a></div>
 
 > Built with [Claude Code](https://claude.ai/code)
 
