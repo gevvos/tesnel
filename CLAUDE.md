@@ -2,7 +2,6 @@
 
 ## Rules
 
-- Never edit README.hy.md — Armenian text generation is unreliable. Only the user edits this file.
 - All relative imports in `lib/` must use `.js` extensions (`import { foo } from './bar.js'`). Required by nodenext moduleResolution.
 - No default exports. Named exports only.
 - Arrow functions, not function declarations. Types via `type`, not `interface`.
