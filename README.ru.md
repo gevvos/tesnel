@@ -43,6 +43,7 @@ tesnel включает MCP-сервер, который даёт AI-агент�
 - **Поддержка Nuxt** — определяет автоимпорты composables и stores через `.nuxt/types/`
 - **Поддержка Nest.js** — работает из коробки с explicit imports
 - **tsconfig paths** — резолвит `@/`, `~/` и кастомные алиасы
+- **Линт циклов** — `tesnel lint` с exit code 1 для CI пайплайнов
 - **MCP сервер** — интеграция с Claude Code для запросов к графу зависимостей
 - **Single HTML** — самодостаточный файл, работает офлайн через `file://`
 
@@ -75,11 +76,11 @@ tesnel analyze ./src/main.ts --depth 3
 tesnel analyze ./src/main.ts --no-html
 ```
 
-Результат: `tesnel-output.json` + `tesnel-output.html`
+Результат: `.tesnel/output.json` + `.tesnel/output.html`
 
 ### Открыть визуализацию
 
-Откройте `tesnel-output.html` в любом браузере. Сервер не нужен.
+Откройте `.tesnel/output.html` в любом браузере. Сервер не нужен.
 
 **Управление:**
 - **Zoom** — скролл или кнопки +/-
@@ -92,10 +93,29 @@ tesnel analyze ./src/main.ts --no-html
 - **Exclude** — скрыть файлы по паттерну (например `__tests__, .spec`)
 - **Type imports** — вкл/выкл type-only imports (пунктирные линии)
 
+### Линт циклических зависимостей
+
+```bash
+# Проверка от entry файла
+tesnel lint ./src/main.ts
+
+# Проверка всей директории
+tesnel lint ./src
+
+# Ограничить глубину обхода
+tesnel lint ./src --depth 3
+```
+
+Exit code 0 если циклов нет, 1 если есть. Удобно для CI:
+
+```yaml
+- run: tesnel lint ./src
+```
+
 ### MCP сервер (Claude Code)
 
 ```bash
-# Запуск MCP сервера (читает tesnel-output.json из CWD)
+# Запуск MCP сервера (читает .tesnel/output.json из CWD)
 tesnel mcp
 
 # Или указать путь к данным

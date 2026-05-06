@@ -5,6 +5,7 @@ coverage
 *.output.html
 tesnel-output.json
 tesnel-output.html
+.tesnel/
 .tmp-test
 ui/dev-data.json
 ui/dev-data.html
