@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/gevvos/tesnel/compare/tesnel-v0.3.1...tesnel-v0.3.2) (2026-05-06)
+
+
+### Bug Fixes
+
+* use npm trusted publishing instead of token ([5fcbcfa](https://github.com/gevvos/tesnel/commit/5fcbcfa9be22865620f0db0473879d2a73590e7b))
+
 ## [0.3.1](https://github.com/gevvos/tesnel/compare/tesnel-v0.3.0...tesnel-v0.3.1) (2026-05-06)
 
 
