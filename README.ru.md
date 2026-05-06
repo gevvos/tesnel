@@ -50,9 +50,9 @@ tesnel включает MCP-сервер, который даёт AI-агент�
 ## Установка
 
 ```bash
-npm install -g tesnel
+npm install -g @gevvos/tesnel
 # или
-pnpm add -g tesnel
+pnpm add -g @gevvos/tesnel
 ```
 
 ## Использование

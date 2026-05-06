@@ -1,5 +1,5 @@
 {
-  "name": "tesnel",
+  "name": "@gevvos/tesnel",
   "version": "0.3.2",
   "description": "Static dependency analyzer and visualizer for TypeScript, JavaScript, and Vue projects",
   "type": "module",

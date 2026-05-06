@@ -50,9 +50,9 @@ tesnel includes an MCP server that gives AI agents (Claude Code, etc.) structure
 ## Install
 
 ```bash
-npm install -g tesnel
+npm install -g @gevvos/tesnel
 # or
-pnpm add -g tesnel
+pnpm add -g @gevvos/tesnel
 ```
 
 ## Usage
