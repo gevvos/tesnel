@@ -1,6 +1,6 @@
 {
   "name": "tesnel",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Static dependency analyzer and visualizer for TypeScript, JavaScript, and Vue projects",
   "type": "module",
   "main": "./dist/tesnel.js",

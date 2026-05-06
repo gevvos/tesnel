@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/gevvos/tesnel/compare/tesnel-v0.3.0...tesnel-v0.3.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* run build:ui before tests in release workflow ([d024728](https://github.com/gevvos/tesnel/commit/d02472836488e6142a82c0367eace62c14ccfe5c))
+
 ## [0.3.0](https://github.com/gevvos/tesnel/compare/tesnel-v0.2.0...tesnel-v0.3.0) (2026-05-06)
 
 
