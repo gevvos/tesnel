@@ -68,4 +68,64 @@ describe('parseSource', () => {
     expect(result.typeImports).toEqual(['./foo']);
     expect(result.imports).toEqual(['./bar', './baz']);
   });
+
+  it('extracts importSymbols for named imports', () => {
+    const result = parseSource('index.ts', `
+      import { format, validate } from './utils';
+      import { helper } from './helper';
+    `);
+
+    expect(result.importSymbols['./utils']).toEqual(['format', 'validate']);
+    expect(result.importSymbols['./helper']).toEqual(['helper']);
+  });
+
+  it('extracts importSymbols for type imports', () => {
+    const result = parseSource('index.ts', `
+      import type { Config, User } from './types';
+    `);
+
+    expect(result.importSymbols['./types']).toEqual(['Config', 'User']);
+  });
+
+  it('extracts importSymbols for default imports', () => {
+    const result = parseSource('index.ts', `
+      import App from './App';
+    `);
+
+    expect(result.importSymbols['./App']).toEqual(['default']);
+  });
+
+  it('extracts importSymbols for re-exports', () => {
+    const result = parseSource('index.ts', `
+      export { format, validate } from './core';
+      export type { Config } from './types';
+    `);
+
+    expect(result.importSymbols['./core']).toEqual(['format', 'validate']);
+    expect(result.importSymbols['./types']).toEqual(['Config']);
+  });
+
+  it('returns empty importSymbols for namespace re-exports', () => {
+    const result = parseSource('index.ts', `
+      export * from './utils';
+    `);
+
+    expect(result.importSymbols['./utils'] ?? []).toEqual([]);
+  });
+
+  it('merges importSymbols when file both imports and re-exports from same source', () => {
+    const result = parseSource('index.ts', `
+      import { format } from './core';
+      export { validate } from './core';
+    `);
+
+    expect(result.importSymbols['./core']).toContain('format');
+    expect(result.importSymbols['./core']).toContain('validate');
+  });
+
+  it('returns empty importSymbols on parse errors', () => {
+    const result = parseSource('bad.ts', 'const x = {{{');
+
+    expect(result.importSymbols).toEqual({});
+  });
 });

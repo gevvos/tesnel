@@ -83,7 +83,7 @@ describe('buildOutput', () => {
     const entry = resolve(root, 'src/index.ts');
     const graph = buildGraph(entry, root);
     const metrics = calculateMetrics(graph);
-    const output = buildOutput(graph, [], './src/index.ts', metrics);
+    const output = buildOutput(graph, [], './src/index.ts', { metrics });
 
     expect(output.metrics).toBeDefined();
     expect(output.metrics!.modules).toEqual(metrics.modules);

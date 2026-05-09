@@ -44,6 +44,9 @@ tesnel includes an MCP server that gives AI agents (Claude Code, etc.) structure
 - **Nest.js support** — works out of the box with explicit imports
 - **tsconfig paths** — resolves `@/`, `~/`, and custom aliases
 - **Architecture metrics** — Instability, Abstractness, Distance per directory (Robert Martin)
+- **File complexity** — cyclomatic complexity bar on each file node (green → red)
+- **File stats** — LOC, complexity, functions, nesting depth in sidebar
+- **Export tracking** — list of exports per file, click to filter graph to consumers of a specific symbol
 - **Cycle linting** — `tesnel lint` with exit code 1 for CI pipelines
 - **MCP server** — Claude Code integration for querying the dependency graph
 - **Single HTML output** — self-contained, works offline via `file://`
@@ -87,7 +90,7 @@ Open `.tesnel/output.html` in any browser. No server needed.
 - **Zoom** — scroll or +/- buttons
 - **Pan** — click and drag
 - **Depth slider** — collapse directories
-- **Click file** — show imports/importedBy in sidebar
+- **Click file** — show file stats, exports, imports/importedBy in sidebar
 - **Search** — find files by name
 - **Hide unrelated** — isolate selected file's connections
 - **Cycles only** — show only circular dependencies
@@ -194,6 +197,7 @@ Add to `.mcp.json` or Claude Code settings:
 | Dashed arrow | Type-only import |
 | Red arrow | Circular dependency |
 | Blue arrow | Selected file's connections |
+| Bottom bar (green → red) | File cyclomatic complexity |
 
 ## Development
 

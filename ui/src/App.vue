@@ -18,6 +18,7 @@ const excludePattern = ref('');
 const showTypeImports = ref(true);
 const showMetrics = ref(false);
 const showMetricsHelp = ref(false);
+const exportFilterIds = ref<Set<string> | null>(null);
 
 const maxPossibleDepth = computed(() => {
   if (!data.value) return 1;
@@ -85,7 +86,9 @@ const excludedNodeIds = computed(() => {
 const visibleNodeIds = computed(() => {
   let ids: Set<string> | null = null;
 
-  if (connectedNodeIds.value && cycleNodeIds.value) {
+  if (exportFilterIds.value) {
+    ids = exportFilterIds.value;
+  } else if (connectedNodeIds.value && cycleNodeIds.value) {
     ids = new Set<string>();
     for (const id of connectedNodeIds.value) {
       if (cycleNodeIds.value.has(id)) ids.add(id);
@@ -120,6 +123,30 @@ const { selectNode, hoverNode, selectedInfo, highlightedEdges } = useSelection(d
 const handleSearch = (id: string) => {
   selectNode(id);
 };
+
+const handleFilterExport = (fileId: string, exportName: string) => {
+  if (!data.value) return;
+  const edges = data.value.graph.edges;
+  const consumers = new Set<string>();
+  consumers.add(fileId);
+
+  const queue = [fileId];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const edge of edges) {
+      if (edge.to !== current || !edge.symbols?.includes(exportName)) continue;
+      if (consumers.has(edge.from)) continue;
+      consumers.add(edge.from);
+      if (edge.type === 're-export') queue.push(edge.from);
+    }
+  }
+
+  exportFilterIds.value = consumers;
+};
+
+watch(selectedId, () => {
+  exportFilterIds.value = null;
+});
 </script>
 
 <template>
@@ -217,6 +244,7 @@ const handleSearch = (id: string) => {
         <Sidebar
           :info="selectedInfo"
           @navigate="selectNode"
+          @filter-export="handleFilterExport"
         />
       </template>
     </main>

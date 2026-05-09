@@ -46,6 +46,19 @@ const edgePath = (edge: LayoutEdge): string => {
 const handleBgClick = () => {
   emit('select', null);
 };
+
+const complexityColor = (c: number): string => {
+  if (c <= 5) return '#22c55e';
+  if (c <= 10) return '#84cc16';
+  if (c <= 20) return '#eab308';
+  if (c <= 30) return '#f97316';
+  return '#ef4444';
+};
+
+const complexityWidth = (c: number, nodeWidth: number): number => {
+  const ratio = Math.min(c / 30, 1);
+  return Math.max(ratio * (nodeWidth - 6), 4);
+};
 </script>
 
 <template>
@@ -161,6 +174,16 @@ const handleBgClick = () => {
             :y="node.y + 20"
             class="file-label"
           >{{ node.name }}</text>
+          <rect
+            v-if="node.stats && node.stats.complexity > 0"
+            :x="node.x + 3"
+            :y="node.y + node.height - 3"
+            :width="complexityWidth(node.stats.complexity, node.width)"
+            :height="2.5"
+            :fill="complexityColor(node.stats.complexity)"
+            rx="1"
+            opacity="0.8"
+          />
         </g>
       </g>
     </svg>

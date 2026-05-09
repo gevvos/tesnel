@@ -49,7 +49,12 @@ export const useSelection = (data: Ref<TesnelData | null>, layoutEdges: Ref<Layo
       if (m) metrics = { fanIn: m.fanIn, fanOut: m.fanOut, instability: m.instability, abstractness: m.abstractness, distance: m.distance, files: m.files };
     }
 
-    return { id, imports, importedBy, inCycle, metrics };
+    let stats: { loc: number; complexity: number; functions: number; maxNesting: number; exports: Array<{ name: string; isType: boolean }> } | undefined;
+    if (!id.startsWith('dir:') && data.value.fileStats) {
+      stats = data.value.fileStats[id];
+    }
+
+    return { id, imports, importedBy, inCycle, metrics, stats };
   });
 
   const highlightedEdges = computed(() => {

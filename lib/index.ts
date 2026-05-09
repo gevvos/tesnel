@@ -1,10 +1,12 @@
 export { buildGraph } from './analyzer/src/graph-builder.js';
 export { detectCycles } from './analyzer/src/cycle-detector.js';
 export { calculateMetrics } from './analyzer/src/metrics-calculator.js';
+export { computeFileStats } from './analyzer/src/file-stats.js';
 export { parseFile, parseSource } from './analyzer/src/parser.js';
 export { resolveFilePath } from './analyzer/src/resolver.js';
 export { buildOutput, writeOutput } from './output/json-writer.js';
 export type { DependencyGraph, GraphNode, GraphEdge } from './analyzer/src/graph-builder.js';
 export type { Cycle } from './analyzer/src/cycle-detector.js';
 export type { ArchitectureMetrics, ModuleMetrics, MetricsSummary } from './analyzer/src/metrics-calculator.js';
+export type { FileStats } from './analyzer/src/file-stats.js';
 export type { TesnelOutput, TreeNode } from './types.js';

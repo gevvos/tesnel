@@ -17,11 +17,19 @@ defineProps<{
       distance: number;
       files: number;
     };
+    stats?: {
+      loc: number;
+      complexity: number;
+      functions: number;
+      maxNesting: number;
+      exports: Array<{ name: string; isType: boolean }>;
+    };
   } | null;
 }>();
 
 const emit = defineEmits<{
   navigate: [id: string];
+  'filter-export': [fileId: string, exportName: string];
 }>();
 
 const fileName = (path: string) => path.split('/').pop() || path;
@@ -35,6 +43,28 @@ const showHelp = ref(false);
       <p class="sidebar-path">{{ info.id }}</p>
 
       <div v-if="info.inCycle" class="cycle-badge">Circular dependency</div>
+
+      <section v-if="info.stats">
+        <h4>File stats</h4>
+        <div class="stats-row">
+          <div class="stat" data-tip="Total lines in the file">
+            <span class="stat-value">{{ info.stats.loc }}</span>
+            <span class="stat-label">LOC</span>
+          </div>
+          <div class="stat" data-tip="Decision points: if, for, while, switch, ternary, catch">
+            <span class="stat-value" :class="{ 'stat-warn': info.stats.complexity > 20, 'stat-caution': info.stats.complexity > 10 && info.stats.complexity <= 20 }">{{ info.stats.complexity }}</span>
+            <span class="stat-label">Complexity</span>
+          </div>
+          <div class="stat" data-tip="Functions and arrow functions in the file">
+            <span class="stat-value">{{ info.stats.functions }}</span>
+            <span class="stat-label">Functions</span>
+          </div>
+          <div class="stat" data-tip="Deepest nesting of control flow (if inside for inside try…)">
+            <span class="stat-value" :class="{ 'stat-warn': info.stats.maxNesting > 4 }">{{ info.stats.maxNesting }}</span>
+            <span class="stat-label">Nesting</span>
+          </div>
+        </div>
+      </section>
 
       <section v-if="info.metrics" class="metrics-section">
         <div class="metrics-header">
@@ -72,6 +102,16 @@ const showHelp = ref(false);
             <span class="metric-value">{{ info.metrics.files }}</span>
           </div>
         </div>
+      </section>
+
+      <section v-if="info.stats && info.stats.exports.length">
+        <h4>Exports ({{ info.stats.exports.length }})</h4>
+        <ul>
+          <li v-for="exp in info.stats.exports" :key="exp.name" class="export-item" @click="emit('filter-export', info.id, exp.name)">
+            <span :class="{ 'export-type': exp.isType }">{{ exp.name }}</span>
+            <span v-if="exp.isType" class="export-tag">type</span>
+          </li>
+        </ul>
       </section>
 
       <section v-if="info.imports.length">
@@ -272,5 +312,82 @@ li:hover {
 
 .metric-ok {
   color: #22c55e;
+}
+
+.stats-row {
+  display: flex;
+  gap: 6px;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px;
+  background: rgba(55, 65, 81, 0.3);
+  border-radius: 4px;
+  position: relative;
+  cursor: default;
+}
+
+.stat[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #e2e8f0;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #374151;
+  z-index: 30;
+  pointer-events: none;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+  font-family: monospace;
+}
+
+.stat-label {
+  font-size: 9px;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.stat-warn {
+  color: #ef4444;
+}
+
+.stat-caution {
+  color: #eab308;
+}
+
+.export-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.export-type {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.export-tag {
+  font-size: 9px;
+  color: #64748b;
+  background: rgba(55, 65, 81, 0.4);
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 </style>

@@ -11,6 +11,7 @@ export type GraphEdge = {
   from: string;
   to: string;
   type: string;
+  symbols?: string[];
 };
 
 export type ModuleMetrics = {
@@ -21,6 +22,19 @@ export type ModuleMetrics = {
   instability: number;
   abstractness: number;
   distance: number;
+};
+
+export type ExportEntry = {
+  name: string;
+  isType: boolean;
+};
+
+export type FileStats = {
+  loc: number;
+  complexity: number;
+  functions: number;
+  maxNesting: number;
+  exports: ExportEntry[];
 };
 
 export type TesnelData = {
@@ -40,6 +54,7 @@ export type TesnelData = {
   };
   cycles: string[][];
   errors: Array<{ file: string; message: string }>;
+  fileStats?: Record<string, FileStats>;
   metrics?: {
     modules: ModuleMetrics[];
     summary: {
@@ -61,6 +76,7 @@ export type LayoutNode = {
   isDirectory: boolean;
   depth: number;
   metrics?: ModuleMetrics;
+  stats?: FileStats;
 };
 
 export type LayoutEdge = {
