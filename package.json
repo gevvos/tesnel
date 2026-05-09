@@ -1,6 +1,6 @@
 {
   "name": "@gevvos/tesnel",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Static dependency analyzer and visualizer for TypeScript, JavaScript, and Vue projects",
   "type": "module",
   "main": "./dist/tesnel.js",
