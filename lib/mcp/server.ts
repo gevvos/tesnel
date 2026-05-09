@@ -88,6 +88,32 @@ export const createServer = (dataPath: string) => {
     }),
   );
 
+  server.tool(
+    'tesnel_get_metrics',
+    'Get architecture metrics (Instability, Abstractness, Distance) per directory. Based on Robert Martin\'s Clean Architecture. Identifies Zone of Pain (concrete+stable) and Zone of Uselessness (abstract+unstable).',
+    { sort_by: z.enum(['distance', 'instability', 'abstractness', 'fanIn', 'fanOut']).optional().describe('Sort modules by this field (default: distance)') },
+    async ({ sort_by }) => {
+      if (!data.metrics) {
+        return {
+          content: [{ type: 'text', text: 'No metrics available. Re-run tesnel analyze to generate metrics.' }],
+          isError: true,
+        };
+      }
+
+      const modules = [...data.metrics.modules];
+      if (sort_by && sort_by !== 'distance') {
+        modules.sort((a, b) => (b[sort_by] as number) - (a[sort_by] as number));
+      }
+
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({ summary: data.metrics.summary, modules }, null, 2),
+        }],
+      };
+    },
+  );
+
   return server;
 };
 

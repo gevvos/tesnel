@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import { buildOutput } from './json-writer.js';
 import { buildGraph } from '../analyzer/src/graph-builder.js';
 import { detectCycles } from '../analyzer/src/cycle-detector.js';
+import { calculateMetrics } from '../analyzer/src/metrics-calculator.js';
 
 const fixturesDir = resolve(__dirname, '../../tests/fixtures');
 
@@ -75,5 +76,26 @@ describe('buildOutput', () => {
     const runtimeEdges = output.graph.edges.filter(e => e.type === 'static-import');
     expect(typeEdges.length).toBeGreaterThan(0);
     expect(runtimeEdges.length).toBeGreaterThan(0);
+  });
+
+  it('includes metrics when provided', () => {
+    const root = resolve(fixturesDir, 'simple');
+    const entry = resolve(root, 'src/index.ts');
+    const graph = buildGraph(entry, root);
+    const metrics = calculateMetrics(graph);
+    const output = buildOutput(graph, [], './src/index.ts', metrics);
+
+    expect(output.metrics).toBeDefined();
+    expect(output.metrics!.modules).toEqual(metrics.modules);
+    expect(output.metrics!.summary).toEqual(metrics.summary);
+  });
+
+  it('omits metrics when not provided', () => {
+    const root = resolve(fixturesDir, 'simple');
+    const entry = resolve(root, 'src/index.ts');
+    const graph = buildGraph(entry, root);
+    const output = buildOutput(graph, [], './src/index.ts');
+
+    expect(output.metrics).toBeUndefined();
   });
 });

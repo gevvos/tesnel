@@ -2,6 +2,23 @@ export type TreeNode =
   | { type: 'file'; id: string; name: string }
   | { type: 'directory'; name: string; children: TreeNode[] };
 
+export type ModuleMetricsOutput = {
+  path: string;
+  files: number;
+  fanIn: number;
+  fanOut: number;
+  instability: number;
+  abstractness: number;
+  distance: number;
+};
+
+export type MetricsSummaryOutput = {
+  avgDistance: number;
+  maxDistance: number;
+  modulesInPainZone: number;
+  modulesInUselessnessZone: number;
+};
+
 export type TesnelOutput = {
   meta: {
     version: string;
@@ -19,4 +36,8 @@ export type TesnelOutput = {
   };
   cycles: string[][];
   errors: Array<{ file: string; message: string }>;
+  metrics?: {
+    modules: ModuleMetricsOutput[];
+    summary: MetricsSummaryOutput;
+  };
 };

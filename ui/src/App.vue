@@ -7,6 +7,7 @@ import GraphView from './components/GraphView.vue';
 import Sidebar from './components/Sidebar.vue';
 import DepthSlider from './components/DepthSlider.vue';
 import SearchBar from './components/SearchBar.vue';
+import MetricsHelp from './components/MetricsHelp.vue';
 
 const { data } = useData();
 const isolateMode = ref(false);
@@ -15,6 +16,8 @@ const cyclesOnly = ref(false);
 const excludeInput = ref('');
 const excludePattern = ref('');
 const showTypeImports = ref(true);
+const showMetrics = ref(false);
+const showMetricsHelp = ref(false);
 
 const maxPossibleDepth = computed(() => {
   if (!data.value) return 1;
@@ -147,6 +150,11 @@ const handleSearch = (id: string) => {
           <input type="checkbox" v-model="cyclesOnly" />
           <span>Cycles only</span>
         </label>
+        <label v-if="data.metrics" class="filter-toggle">
+          <input type="checkbox" v-model="showMetrics" />
+          <span>Metrics</span>
+        </label>
+        <button v-if="data.metrics" class="help-btn" @click="showMetricsHelp = true" title="What are these metrics?">?</button>
         <input
           v-model="excludeInput"
           class="exclude-input"
@@ -196,6 +204,7 @@ const handleSearch = (id: string) => {
           :height="graphHeight"
           :selected-id="selectedId"
           :highlighted-edges="highlightedEdges"
+          :show-metrics="showMetrics"
           @select="selectNode"
           @hover="hoverNode"
         />
@@ -211,6 +220,8 @@ const handleSearch = (id: string) => {
         />
       </template>
     </main>
+
+    <MetricsHelp v-if="showMetricsHelp" @close="showMetricsHelp = false" />
   </div>
 </template>
 
@@ -288,6 +299,28 @@ h1 {
 .reach-slider {
   width: 80px;
   accent-color: #3b82f6;
+}
+
+.help-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #4b5563;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.help-btn:hover {
+  border-color: #60a5fa;
+  color: #60a5fa;
 }
 
 .exclude-input {

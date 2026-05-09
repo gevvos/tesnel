@@ -127,4 +127,34 @@ describe('analyzeCommand', () => {
     expect(data.meta.totalCycles).toBe(1);
     expect(data.cycles).toHaveLength(1);
   });
+
+  it('includes metrics in output', () => {
+    const outputPath = resolve(tmpDir, 'out.json');
+
+    analyzeCommand(resolve(fixturesDir, 'simple/src/index.ts'), {
+      output: outputPath,
+      html: false,
+    });
+
+    const data = JSON.parse(readFileSync(outputPath, 'utf8'));
+    expect(data.metrics).toBeDefined();
+    expect(data.metrics.modules).toBeInstanceOf(Array);
+    expect(data.metrics.summary).toBeDefined();
+    expect(typeof data.metrics.summary.avgDistance).toBe('number');
+  });
+
+  it('excludes isolated directories from metrics', () => {
+    const outputPath = resolve(tmpDir, 'out.json');
+
+    analyzeCommand(resolve(fixturesDir, 'simple/src/index.ts'), {
+      output: outputPath,
+      html: false,
+    });
+
+    const data = JSON.parse(readFileSync(outputPath, 'utf8'));
+    const isolated = data.metrics.modules.filter(
+      (m: { fanIn: number; fanOut: number }) => m.fanIn === 0 && m.fanOut === 0,
+    );
+    expect(isolated).toHaveLength(0);
+  });
 });

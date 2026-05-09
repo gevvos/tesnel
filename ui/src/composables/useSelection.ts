@@ -42,7 +42,14 @@ export const useSelection = (data: Ref<TesnelData | null>, layoutEdges: Ref<Layo
 
     const inCycle = data.value.cycles.some(c => fileIds.some(f => c.includes(f)));
 
-    return { id, imports, importedBy, inCycle };
+    let metrics: { fanIn: number; fanOut: number; instability: number; abstractness: number; distance: number; files: number } | undefined;
+    if (id.startsWith('dir:') && data.value.metrics) {
+      const dirPath = id.slice(4);
+      const m = data.value.metrics.modules.find(mod => mod.path === dirPath);
+      if (m) metrics = { fanIn: m.fanIn, fanOut: m.fanOut, instability: m.instability, abstractness: m.abstractness, distance: m.distance, files: m.files };
+    }
+
+    return { id, imports, importedBy, inCycle, metrics };
   });
 
   const highlightedEdges = computed(() => {

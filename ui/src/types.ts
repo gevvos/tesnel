@@ -13,6 +13,16 @@ export type GraphEdge = {
   type: string;
 };
 
+export type ModuleMetrics = {
+  path: string;
+  files: number;
+  fanIn: number;
+  fanOut: number;
+  instability: number;
+  abstractness: number;
+  distance: number;
+};
+
 export type TesnelData = {
   meta: {
     version: string;
@@ -30,6 +40,15 @@ export type TesnelData = {
   };
   cycles: string[][];
   errors: Array<{ file: string; message: string }>;
+  metrics?: {
+    modules: ModuleMetrics[];
+    summary: {
+      avgDistance: number;
+      maxDistance: number;
+      modulesInPainZone: number;
+      modulesInUselessnessZone: number;
+    };
+  };
 };
 
 export type LayoutNode = {
@@ -41,6 +60,7 @@ export type LayoutNode = {
   height: number;
   isDirectory: boolean;
   depth: number;
+  metrics?: ModuleMetrics;
 };
 
 export type LayoutEdge = {

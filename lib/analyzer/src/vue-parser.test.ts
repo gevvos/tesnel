@@ -48,6 +48,51 @@ describe('parseVueFile', () => {
     expect(result.typeImports).toBeDefined();
     expect(Array.isArray(result.typeImports)).toBe(true);
   });
+
+  it('returns errors for malformed vue template', () => {
+    const path = writeTmpVue('__malformed.vue', '<template><div></template>');
+    const result = parseVueFile(path);
+
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.imports).toEqual([]);
+  });
+
+  it('handles script without setup', () => {
+    const path = writeTmpVue('__options.vue', `
+<template><div>options api</div></template>
+<script lang="ts">
+import { ref } from 'vue';
+import { helper } from './composables/useCounter';
+export default { setup() { return { count: ref(0) }; } };
+</script>`);
+    const result = parseVueFile(path);
+
+    expect(result.imports).toContain('./composables/useCounter');
+  });
+
+  it('extracts type imports from vue files', () => {
+    const path = writeTmpVue('__typed.vue', `
+<template><div>typed</div></template>
+<script setup lang="ts">
+import type { Ref } from 'vue';
+import { ref } from 'vue';
+import type { User } from './composables/useCounter';
+</script>`);
+    const result = parseVueFile(path);
+
+    expect(result.typeImports).toContain('./composables/useCounter');
+  });
+
+  it('extracts re-exports from script', () => {
+    const path = writeTmpVue('__reexport.vue', `
+<template><div>re-export</div></template>
+<script setup lang="ts">
+export { helper } from './composables/useCounter';
+</script>`);
+    const result = parseVueFile(path);
+
+    expect(result.reExports).toContain('./composables/useCounter');
+  });
 });
 
 describe('buildGraph with .vue files', () => {

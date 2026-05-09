@@ -1,10 +1,22 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import MetricsHelp from './MetricsHelp.vue';
+import { getZoneInfo } from '../utils/metrics';
+
 defineProps<{
   info: {
     id: string;
     imports: string[];
     importedBy: string[];
     inCycle: boolean;
+    metrics?: {
+      fanIn: number;
+      fanOut: number;
+      instability: number;
+      abstractness: number;
+      distance: number;
+      files: number;
+    };
   } | null;
 }>();
 
@@ -13,6 +25,7 @@ const emit = defineEmits<{
 }>();
 
 const fileName = (path: string) => path.split('/').pop() || path;
+const showHelp = ref(false);
 </script>
 
 <template>
@@ -22,6 +35,44 @@ const fileName = (path: string) => path.split('/').pop() || path;
       <p class="sidebar-path">{{ info.id }}</p>
 
       <div v-if="info.inCycle" class="cycle-badge">Circular dependency</div>
+
+      <section v-if="info.metrics" class="metrics-section">
+        <div class="metrics-header">
+          <h4>Metrics</h4>
+          <button class="metrics-help-btn" @click="showHelp = true">?</button>
+        </div>
+
+        <div v-if="getZoneInfo(info.metrics)" class="zone-badge" :class="getZoneInfo(info.metrics)!.cls" :title="getZoneInfo(info.metrics)!.desc">
+          {{ getZoneInfo(info.metrics)!.label }}
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric" title="I = Fan-out / (Fan-in + Fan-out). 0 = stable (everyone depends on it), 1 = unstable (depends on others).">
+            <span class="metric-label">Instability</span>
+            <span class="metric-value">{{ info.metrics.instability }}</span>
+          </div>
+          <div class="metric" title="Ratio of type-only imports to total incoming imports. 0 = concrete (runtime code), 1 = abstract (only types).">
+            <span class="metric-label">Abstractness</span>
+            <span class="metric-value">{{ info.metrics.abstractness }}</span>
+          </div>
+          <div class="metric" title="D = |A + I − 1|. Distance from the Main Sequence. 0 = ideal balance, 1 = worst position.">
+            <span class="metric-label">Distance</span>
+            <span class="metric-value" :class="{ 'metric-warn': info.metrics.distance >= 0.5, 'metric-ok': info.metrics.distance < 0.2 }">{{ info.metrics.distance }}</span>
+          </div>
+          <div class="metric" title="Number of incoming cross-boundary dependencies (other modules importing from this one).">
+            <span class="metric-label">Fan-in</span>
+            <span class="metric-value">{{ info.metrics.fanIn }}</span>
+          </div>
+          <div class="metric" title="Number of outgoing cross-boundary dependencies (this module importing from others).">
+            <span class="metric-label">Fan-out</span>
+            <span class="metric-value">{{ info.metrics.fanOut }}</span>
+          </div>
+          <div class="metric" title="Total number of source files in this module.">
+            <span class="metric-label">Files</span>
+            <span class="metric-value">{{ info.metrics.files }}</span>
+          </div>
+        </div>
+      </section>
 
       <section v-if="info.imports.length">
         <h4>Imports ({{ info.imports.length }})</h4>
@@ -45,6 +96,8 @@ const fileName = (path: string) => path.split('/').pop() || path;
         <p class="empty">No dependencies</p>
       </section>
     </div>
+
+    <MetricsHelp v-if="showHelp" @close="showHelp = false" />
   </aside>
 </template>
 
@@ -129,5 +182,95 @@ li:hover {
   font-size: 12px;
   color: #64748b;
   font-style: italic;
+}
+
+.metrics-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.metrics-header h4 {
+  margin-bottom: 0;
+}
+
+.metrics-help-btn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #4b5563;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.metrics-help-btn:hover {
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
+.zone-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.zone-pain {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.zone-useless {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+.zone-ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: rgba(55, 65, 81, 0.3);
+  border-radius: 4px;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.metric-value {
+  font-size: 11px;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.metric-warn {
+  color: #ef4444;
+}
+
+.metric-ok {
+  color: #22c55e;
 }
 </style>

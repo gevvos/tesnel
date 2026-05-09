@@ -1,6 +1,6 @@
 import { ref, watch, shallowRef, nextTick, type Ref } from 'vue';
 import ELK from 'elkjs/lib/elk.bundled.js';
-import type { TesnelData, LayoutNode, LayoutEdge, TreeNode } from '../types.js';
+import type { TesnelData, LayoutNode, LayoutEdge, TreeNode, ModuleMetrics } from '../types.js';
 
 const elk = new ELK();
 
@@ -179,20 +179,34 @@ export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, vi
         }
       }
 
+      const metricsMap = new Map<string, ModuleMetrics>();
+      if (data.value.metrics) {
+        for (const m of data.value.metrics.modules) {
+          metricsMap.set(m.path, m);
+        }
+      }
+
       const extractNodes = (elkNodes: any[], depth: number, offsetX: number, offsetY: number) => {
         for (const n of elkNodes) {
           const absX = (n.x ?? 0) + offsetX;
           const absY = (n.y ?? 0) + offsetY;
-          nodes.push({
+          const isDir = !!n.children || n.id.startsWith('dir:');
+          const node: LayoutNode = {
             id: n.id,
             name: n.labels?.[0]?.text || n.id,
             x: absX,
             y: absY,
             width: n.width ?? NODE_WIDTH,
             height: n.height ?? NODE_HEIGHT,
-            isDirectory: !!n.children || n.id.startsWith('dir:'),
+            isDirectory: isDir,
             depth,
-          });
+          };
+          if (isDir) {
+            const dirPath = n.id.startsWith('dir:') ? n.id.slice(4) : n.id;
+            const m = metricsMap.get(dirPath);
+            if (m) node.metrics = m;
+          }
+          nodes.push(node);
           if (n.children) {
             extractNodes(n.children, depth + 1, absX, absY);
           }

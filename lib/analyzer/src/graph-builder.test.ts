@@ -163,4 +163,40 @@ describe('buildGraph', () => {
     const graph = buildGraph(fakeEntry, root);
     expect(graph.errors.length).toBeGreaterThan(0);
   });
+
+  it('strips query strings from specifiers', () => {
+    const entry = resolve(fixturesDir, 'parse-errors/src/broken.ts');
+    const root = resolve(fixturesDir, 'parse-errors');
+    const graph = buildGraph(entry, root);
+
+    const dataNode = graph.nodes.find(n => n.id === 'src/data.ts');
+    expect(dataNode).toBeDefined();
+
+    expect(graph.edges).toContainEqual({
+      from: 'src/broken.ts',
+      to: 'src/data.ts',
+      type: 'static-import',
+    });
+  });
+
+  it('sets root correctly', () => {
+    const { entry, root } = fixture('simple');
+    const graph = buildGraph(entry, root);
+    expect(graph.root).toBe(root);
+  });
+
+  it('returns empty errors for valid project', () => {
+    const { entry, root } = fixture('simple');
+    const graph = buildGraph(entry, root);
+    expect(graph.errors).toEqual([]);
+  });
+
+  it('handles vue files in graph traversal', () => {
+    const entry = resolve(fixturesDir, 'vue-project/src/App.vue');
+    const root = resolve(fixturesDir, 'vue-project');
+    const graph = buildGraph(entry, root);
+
+    expect(graph.nodes.some(n => n.id.endsWith('.vue'))).toBe(true);
+    expect(graph.edges.some(e => e.from.endsWith('.vue'))).toBe(true);
+  });
 });
