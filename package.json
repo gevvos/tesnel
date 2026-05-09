@@ -21,8 +21,8 @@
   ],
   "scripts": {
     "dev": "tsx lib/cli/index.ts",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
+    "lint": "oxlint --ignore-pattern 'demo/**' --ignore-pattern 'tests/fixtures/**'",
+    "lint:fix": "oxlint --fix --ignore-pattern 'demo/**' --ignore-pattern 'tests/fixtures/**'",
     "build:ui": "vite build --config ui/vite.config.ts",
     "build": "pnpm build:ui && rm -f dist/*.js dist/*.d.ts && vite build",
     "build:watch": "vite build --watch",
