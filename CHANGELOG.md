@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0](https://github.com/gevvos/tesnel/compare/tesnel-v0.3.2...tesnel-v0.4.0) (2026-05-09)
+
+
+### Features
+
+* add architecture metrics (Instability, Abstractness, Distance) ([129a96a](https://github.com/gevvos/tesnel/commit/129a96a685aa85d0c36611a47239c4efb9003737))
+* add architecture metrics (Instability, Abstractness, Distance) ([68ad61f](https://github.com/gevvos/tesnel/commit/68ad61f0aabf423cf8e1b55137a2fa59c50820ec))
+
+
+### Bug Fixes
+
+* rename package to @gevvos/tesnel for npm publishing ([938f346](https://github.com/gevvos/tesnel/commit/938f3469e7e36414adbbd2368b7bcd56968c9c2f))
+
 ## [0.3.2](https://github.com/gevvos/tesnel/compare/tesnel-v0.3.1...tesnel-v0.3.2) (2026-05-06)
 
 
