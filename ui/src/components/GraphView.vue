@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useZoom } from '../composables/useZoom';
+import { getZone, zoneFill, zoneBar, type Zone } from '../utils/metrics';
 import type { LayoutNode, LayoutEdge } from '../types';
 
 const props = defineProps<{
@@ -10,6 +11,7 @@ const props = defineProps<{
   height: number;
   selectedId: string | null;
   highlightedEdges: Set<string>;
+  showMetrics: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -19,6 +21,17 @@ const emit = defineEmits<{
 
 const svgRef = ref<SVGSVGElement | null>(null);
 const { transform, resetZoom, zoomIn, zoomOut } = useZoom(svgRef);
+
+const nodeZones = computed(() => {
+  if (!props.showMetrics) return new Map<string, Zone>();
+  const map = new Map<string, Zone>();
+  for (const node of props.nodes) {
+    if (node.isDirectory && node.metrics) {
+      map.set(node.id, getZone(node.metrics));
+    }
+  }
+  return map;
+});
 
 const edgePath = (edge: LayoutEdge): string => {
   if (edge.points.length === 0) return '';
@@ -78,6 +91,7 @@ const handleBgClick = () => {
             :height="node.height"
             class="dir-rect"
             :class="{ selected: selectedId === node.id }"
+            :style="nodeZones.get(node.id) ? { fill: zoneFill[nodeZones.get(node.id)!] } : {}"
             rx="8"
           />
           <rect
@@ -85,7 +99,7 @@ const handleBgClick = () => {
             :y="node.y"
             :width="4"
             :height="node.height"
-            fill="#4b5563"
+            :fill="nodeZones.get(node.id) ? zoneBar[nodeZones.get(node.id)!] : '#4b5563'"
             rx="2"
           />
           <text
@@ -93,6 +107,12 @@ const handleBgClick = () => {
             :y="node.y + 18"
             class="dir-label"
           >{{ node.name }}</text>
+          <text
+            v-if="showMetrics && node.metrics"
+            :x="node.x + 12"
+            :y="node.y + 28"
+            class="metrics-label"
+          >I={{ node.metrics.instability }}  A={{ node.metrics.abstractness }}  D={{ node.metrics.distance }}</text>
         </g>
 
         <!-- Edges -->
@@ -207,6 +227,13 @@ svg {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.metrics-label {
+  fill: #9ca3af;
+  font-size: 9px;
+  font-family: monospace;
+  letter-spacing: 0;
 }
 
 .edge {

@@ -1,6 +1,7 @@
 import { writeFileSync } from 'fs';
 import type { DependencyGraph } from '../analyzer/src/graph-builder.js';
 import type { Cycle } from '../analyzer/src/cycle-detector.js';
+import type { ArchitectureMetrics } from '../analyzer/src/metrics-calculator.js';
 import type { TesnelOutput, TreeNode } from '../types.js';
 
 type DirNode = { type: 'directory'; name: string; children: Map<string, DirNode | FileNode> };
@@ -47,8 +48,9 @@ export const buildOutput = (
   graph: DependencyGraph,
   cycles: Cycle[],
   entry: string,
+  metrics?: ArchitectureMetrics,
 ): TesnelOutput => {
-  return {
+  const output: TesnelOutput = {
     meta: {
       version: '0.1.0',
       entry,
@@ -66,6 +68,12 @@ export const buildOutput = (
     cycles,
     errors: graph.errors,
   };
+
+  if (metrics) {
+    output.metrics = metrics;
+  }
+
+  return output;
 };
 
 export const writeOutput = (output: TesnelOutput, outputPath: string): void => {

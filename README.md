@@ -43,6 +43,7 @@ tesnel includes an MCP server that gives AI agents (Claude Code, etc.) structure
 - **Nuxt support** — detects auto-imported composables and stores via `.nuxt/types/`
 - **Nest.js support** — works out of the box with explicit imports
 - **tsconfig paths** — resolves `@/`, `~/`, and custom aliases
+- **Architecture metrics** — Instability, Abstractness, Distance per directory (Robert Martin)
 - **Cycle linting** — `tesnel lint` with exit code 1 for CI pipelines
 - **MCP server** — Claude Code integration for querying the dependency graph
 - **Single HTML output** — self-contained, works offline via `file://`
@@ -92,6 +93,31 @@ Open `.tesnel/output.html` in any browser. No server needed.
 - **Cycles only** — show only circular dependencies
 - **Exclude** — hide files matching pattern (e.g. `__tests__, .spec`)
 - **Type imports** — toggle type-only imports (dashed lines)
+- **Metrics** — toggle architecture metrics overlay on directories
+
+### Architecture metrics
+
+tesnel computes per-directory architecture metrics based on Robert Martin's *Clean Architecture* component principles:
+
+- **Instability (I)** = Fan-out / (Fan-in + Fan-out) — how likely the module is to change
+- **Abstractness (A)** = type-only imports / total incoming imports — how abstract the module is
+- **Distance (D)** = |A + I − 1| — distance from the ideal Main Sequence
+
+Enable the **Metrics** toggle in the visualization header to see directories colored by zone:
+
+![Architecture metrics visualization](docs/images/metrics-demo.png)
+
+| Zone | Color | Condition | Meaning |
+|------|-------|-----------|---------|
+| Zone of Pain | Red | A ≈ 0, I ≈ 0 | Concrete + stable. Everyone depends on it, hard to change |
+| Zone of Uselessness | Purple | A ≈ 1, I ≈ 1 | Abstract + unstable. Abstractions nobody uses |
+| Main Sequence | Green | D < 0.2 | Good balance between stability and abstractness |
+
+Click a directory in the graph to see full metrics in the sidebar. The `?` button opens a detailed explanation.
+
+> **Note:** Being in a zone is not automatically bad. Constants, configs, and utilities are naturally in the Zone of Pain — the question is whether a change there would cause a cascade of breakage.
+
+Metrics are included in the JSON output under the `metrics` key.
 
 ### Lint for circular dependencies
 
@@ -143,6 +169,7 @@ Add to `.mcp.json` or Claude Code settings:
 | `tesnel_get_structure` | Directory tree (with depth limit) |
 | `tesnel_get_file_info` | Imports and importedBy for a file |
 | `tesnel_get_cycles` | All circular dependencies |
+| `tesnel_get_metrics` | Architecture metrics per directory (I, A, D) |
 
 ## Supported projects
 

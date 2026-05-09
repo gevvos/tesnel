@@ -41,6 +41,18 @@ const testData: TesnelOutput = {
   },
   cycles: [['src/a.ts', 'src/b.ts', 'src/a.ts']],
   errors: [],
+  metrics: {
+    modules: [
+      { path: 'lib', files: 1, fanIn: 5, fanOut: 0, instability: 0, abstractness: 0, distance: 1 },
+      { path: 'app', files: 2, fanIn: 0, fanOut: 3, instability: 1, abstractness: 0, distance: 0 },
+    ],
+    summary: {
+      avgDistance: 0.5,
+      maxDistance: 1,
+      modulesInPainZone: 1,
+      modulesInUselessnessZone: 0,
+    },
+  },
 };
 
 const tmpDir = resolve(__dirname, '../../.tmp-test');
@@ -114,5 +126,24 @@ describe('MCP Server', () => {
 
     expect(data.totalCycles).toBe(1);
     expect(data.cycles[0]).toEqual(['src/a.ts', 'src/b.ts', 'src/a.ts']);
+  });
+
+  it('tesnel_get_metrics returns summary and modules', async () => {
+    const result = await client.callTool({ name: 'tesnel_get_metrics', arguments: {} });
+    const content = result.content as Array<{ type: string; text: string }>;
+    const data = JSON.parse(content[0].text);
+
+    expect(data.summary.maxDistance).toBe(1);
+    expect(data.summary.modulesInPainZone).toBe(1);
+    expect(data.modules).toHaveLength(2);
+    expect(data.modules[0].path).toBe('lib');
+  });
+
+  it('tesnel_get_metrics supports sort_by parameter', async () => {
+    const result = await client.callTool({ name: 'tesnel_get_metrics', arguments: { sort_by: 'fanIn' } });
+    const content = result.content as Array<{ type: string; text: string }>;
+    const data = JSON.parse(content[0].text);
+
+    expect(data.modules[0].fanIn).toBeGreaterThanOrEqual(data.modules[1].fanIn);
   });
 });
