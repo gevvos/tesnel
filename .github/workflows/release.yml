@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
+      id-token: write # Required for npm trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -35,4 +35,4 @@ jobs:
       - run: pnpm build:ui
       - run: pnpm test
       - run: pnpm build
-      - run: pnpm publish --no-git-checks --provenance --access public
+      - run: npm publish --provenance --access public
