@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/gevvos/tesnel/compare/tesnel-v0.4.0...tesnel-v0.5.0) (2026-05-09)
+
+
+### Features
+
+* add file complexity, stats and export tracking ([8e9dd3e](https://github.com/gevvos/tesnel/commit/8e9dd3e6a1a496d3889880de179f1b8772780334))
+* add file complexity, stats and export tracking ([1dc34a7](https://github.com/gevvos/tesnel/commit/1dc34a7f9e7ac7e3381a4bf3b7b08612ba70b353))
+
 ## [0.4.0](https://github.com/gevvos/tesnel/compare/tesnel-v0.3.2...tesnel-v0.4.0) (2026-05-09)
 
 
