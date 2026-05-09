@@ -4,7 +4,7 @@
 
 > Built with [Claude Code](https://claude.ai/code)
 
-[![npm version](https://img.shields.io/npm/v/tesnel)](https://www.npmjs.com/package/tesnel)
+[![npm version](https://img.shields.io/npm/v/@gevvos/tesnel)](https://www.npmjs.com/package/@gevvos/tesnel)
 [![CI](https://github.com/gevvos/tesnel/actions/workflows/ci.yml/badge.svg)](https://github.com/gevvos/tesnel/actions/workflows/ci.yml)
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](./LICENSE)
 
