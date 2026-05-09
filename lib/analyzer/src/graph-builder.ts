@@ -15,6 +15,7 @@ export type GraphEdge = {
   from: string;
   to: string;
   type: 'static-import' | 'type-import' | 're-export' | 'auto-import';
+  symbols?: string[];
 };
 
 export type BuildGraphOptions = {
@@ -88,14 +89,16 @@ export const buildGraph = (entryAbsPaths: string | string[], root: string, optio
     const fromId = toRelative(absPath);
     const fileDir = dirname(absPath);
 
-    const processSpecifier = (specifier: string, type: GraphEdge['type']) => {
+    const processSpecifier = (specifier: string, type: GraphEdge['type'], symbols?: string[]) => {
       const cleanSpecifier = specifier.split('?')[0];
       const resolved = resolveFilePath(fileDir, cleanSpecifier);
       if (!resolved.path) return;
       if (isNodeModule(resolved.path)) return;
 
       const toId = toRelative(resolved.path);
-      edges.push({ from: fromId, to: toId, type });
+      const edge: GraphEdge = { from: fromId, to: toId, type };
+      if (symbols && symbols.length > 0) edge.symbols = symbols;
+      edges.push(edge);
 
       if (!visited.has(resolved.path)) {
         addNode(resolved.path);
@@ -104,15 +107,15 @@ export const buildGraph = (entryAbsPaths: string | string[], root: string, optio
     };
 
     for (const specifier of parsed.imports) {
-      processSpecifier(specifier, 'static-import');
+      processSpecifier(specifier, 'static-import', parsed.importSymbols[specifier]);
     }
 
     for (const specifier of parsed.typeImports) {
-      processSpecifier(specifier, 'type-import');
+      processSpecifier(specifier, 'type-import', parsed.importSymbols[specifier]);
     }
 
     for (const specifier of parsed.reExports) {
-      processSpecifier(specifier, 're-export');
+      processSpecifier(specifier, 're-export', parsed.importSymbols[specifier]);
     }
 
     if (autoImports) {

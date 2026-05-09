@@ -3,6 +3,7 @@ import { mkdirSync } from 'fs';
 import { buildGraph } from '../../analyzer/src/graph-builder.js';
 import { detectCycles } from '../../analyzer/src/cycle-detector.js';
 import { calculateMetrics } from '../../analyzer/src/metrics-calculator.js';
+import { computeFileStats } from '../../analyzer/src/file-stats.js';
 import { buildOutput, writeOutput } from '../../output/json-writer.js';
 import { generateHtml } from '../../output/html-generator.js';
 import { resolveEntry } from '../resolve-entry.js';
@@ -22,7 +23,13 @@ export const analyzeCommand = (entry: string, options: AnalyzeOptions) => {
   const graph = buildGraph(files, root, { depth });
   const cycles = detectCycles(graph);
   const metrics = calculateMetrics(graph);
-  const output = buildOutput(graph, cycles, entry, metrics);
+
+  const fileStats: Record<string, ReturnType<typeof computeFileStats>> = {};
+  for (const node of graph.nodes) {
+    try { fileStats[node.id] = computeFileStats(node.absPath); } catch {}
+  }
+
+  const output = buildOutput(graph, cycles, entry, { metrics, fileStats });
 
   const outputPath = resolve(options.output || '.tesnel/output.json');
   mkdirSync(dirname(outputPath), { recursive: true });

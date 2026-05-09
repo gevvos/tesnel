@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs';
 import type { DependencyGraph } from '../analyzer/src/graph-builder.js';
 import type { Cycle } from '../analyzer/src/cycle-detector.js';
 import type { ArchitectureMetrics } from '../analyzer/src/metrics-calculator.js';
+import type { FileStats } from '../analyzer/src/file-stats.js';
 import type { TesnelOutput, TreeNode } from '../types.js';
 
 type DirNode = { type: 'directory'; name: string; children: Map<string, DirNode | FileNode> };
@@ -48,7 +49,7 @@ export const buildOutput = (
   graph: DependencyGraph,
   cycles: Cycle[],
   entry: string,
-  metrics?: ArchitectureMetrics,
+  options?: { metrics?: ArchitectureMetrics; fileStats?: Record<string, FileStats> },
 ): TesnelOutput => {
   const output: TesnelOutput = {
     meta: {
@@ -63,14 +64,22 @@ export const buildOutput = (
     tree: buildTree(graph),
     graph: {
       nodes: graph.nodes.map(n => ({ id: n.id, directory: n.directory })),
-      edges: graph.edges.map(e => ({ from: e.from, to: e.to, type: e.type })),
+      edges: graph.edges.map(e => {
+        const edge: { from: string; to: string; type: string; symbols?: string[] } = { from: e.from, to: e.to, type: e.type };
+        if (e.symbols) edge.symbols = e.symbols;
+        return edge;
+      }),
     },
     cycles,
     errors: graph.errors,
   };
 
-  if (metrics) {
-    output.metrics = metrics;
+  if (options?.metrics) {
+    output.metrics = options.metrics;
+  }
+
+  if (options?.fileStats) {
+    output.fileStats = options.fileStats;
   }
 
   return output;

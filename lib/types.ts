@@ -32,8 +32,15 @@ export type TesnelOutput = {
   tree: TreeNode[];
   graph: {
     nodes: Array<{ id: string; directory: string }>;
-    edges: Array<{ from: string; to: string; type: string }>;
+    edges: Array<{ from: string; to: string; type: string; symbols?: string[] }>;
   };
+  fileStats?: Record<string, {
+    loc: number;
+    complexity: number;
+    functions: number;
+    maxNesting: number;
+    exports: Array<{ name: string; isType: boolean }>;
+  }>;
   cycles: string[][];
   errors: Array<{ file: string; message: string }>;
   metrics?: {

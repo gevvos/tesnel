@@ -205,6 +205,9 @@ export const useGraph = (data: Ref<TesnelData | null>, maxDepth: Ref<number>, vi
             const dirPath = n.id.startsWith('dir:') ? n.id.slice(4) : n.id;
             const m = metricsMap.get(dirPath);
             if (m) node.metrics = m;
+          } else if (data.value.fileStats) {
+            const s = data.value.fileStats[n.id];
+            if (s) node.stats = s;
           }
           nodes.push(node);
           if (n.children) {

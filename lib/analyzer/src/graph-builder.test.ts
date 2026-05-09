@@ -20,21 +20,21 @@ describe('buildGraph', () => {
     const nodeIds = graph.nodes.map(n => n.id).sort();
     expect(nodeIds).toEqual(['src/helper.ts', 'src/index.ts', 'src/utils.ts']);
 
-    expect(graph.edges).toContainEqual({
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/index.ts',
       to: 'src/helper.ts',
       type: 'static-import',
-    });
-    expect(graph.edges).toContainEqual({
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/index.ts',
       to: 'src/utils.ts',
       type: 'static-import',
-    });
-    expect(graph.edges).toContainEqual({
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/utils.ts',
       to: 'src/helper.ts',
       type: 'static-import',
-    });
+    }));
   });
 
   it('handles re-exports', () => {
@@ -45,16 +45,16 @@ describe('buildGraph', () => {
 
     const reExportEdges = graph.edges.filter(e => e.type === 're-export');
     expect(reExportEdges).toHaveLength(2);
-    expect(reExportEdges).toContainEqual({
+    expect(reExportEdges).toContainEqual(expect.objectContaining({
       from: 'src/index.ts',
       to: 'src/helper.ts',
       type: 're-export',
-    });
-    expect(reExportEdges).toContainEqual({
+    }));
+    expect(reExportEdges).toContainEqual(expect.objectContaining({
       from: 'src/index.ts',
       to: 'src/utils.ts',
       type: 're-export',
-    });
+    }));
   });
 
   it('handles circular dependencies without infinite loop', () => {
@@ -65,16 +65,16 @@ describe('buildGraph', () => {
     expect(graph.nodes).toHaveLength(2);
     expect(graph.edges).toHaveLength(2);
 
-    expect(graph.edges).toContainEqual({
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/a.ts',
       to: 'src/b.ts',
       type: 'static-import',
-    });
-    expect(graph.edges).toContainEqual({
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/b.ts',
       to: 'src/a.ts',
       type: 'static-import',
-    });
+    }));
   });
 
   it('respects depth limit', () => {
@@ -87,11 +87,11 @@ describe('buildGraph', () => {
     // depth=1: parses entry (depth 0), finds helper and utils
     // but does NOT parse helper/utils (they're at depth 1, limit reached)
     // so utils→helper edge should NOT exist
-    expect(graph.edges).not.toContainEqual({
+    expect(graph.edges).not.toContainEqual(expect.objectContaining({
       from: 'src/utils.ts',
       to: 'src/helper.ts',
       type: 'static-import',
-    });
+    }));
   });
 
   it('ignores bare specifiers', () => {
@@ -128,21 +128,21 @@ describe('buildGraph', () => {
     const nodeIds = graph.nodes.map(n => n.id).sort();
     expect(nodeIds).toEqual(['src/index.ts', 'src/service.ts', 'src/types.ts']);
 
-    expect(graph.edges).toContainEqual({
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/index.ts',
       to: 'src/service.ts',
       type: 'static-import',
-    });
-    expect(graph.edges).toContainEqual({
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/index.ts',
       to: 'src/types.ts',
       type: 'type-import',
-    });
-    expect(graph.edges).toContainEqual({
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/service.ts',
       to: 'src/types.ts',
       type: 'type-import',
-    });
+    }));
   });
 
   it('accepts multiple entry points', () => {
@@ -172,11 +172,11 @@ describe('buildGraph', () => {
     const dataNode = graph.nodes.find(n => n.id === 'src/data.ts');
     expect(dataNode).toBeDefined();
 
-    expect(graph.edges).toContainEqual({
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/broken.ts',
       to: 'src/data.ts',
       type: 'static-import',
-    });
+    }));
   });
 
   it('sets root correctly', () => {
@@ -198,5 +198,76 @@ describe('buildGraph', () => {
 
     expect(graph.nodes.some(n => n.id.endsWith('.vue'))).toBe(true);
     expect(graph.edges.some(e => e.from.endsWith('.vue'))).toBe(true);
+  });
+
+  it('includes import symbols on edges', () => {
+    const root = resolve(fixturesDir, 'exports-chain');
+    const graph = buildGraph(resolve(root, 'src/app.ts'), root);
+
+    const edge = graph.edges.find(e => e.from === 'src/app.ts' && e.to === 'src/barrel.ts');
+    expect(edge).toBeDefined();
+    expect(edge!.symbols).toEqual(['format']);
+  });
+
+  it('includes symbols on re-export edges', () => {
+    const root = resolve(fixturesDir, 'exports-chain');
+    const graph = buildGraph(resolve(root, 'src/barrel.ts'), root);
+
+    const edge = graph.edges.find(e => e.from === 'src/barrel.ts' && e.to === 'lib/index.ts');
+    expect(edge).toBeDefined();
+    expect(edge!.type).toBe('re-export');
+    expect(edge!.symbols).toEqual(['format']);
+  });
+
+  it('includes symbols on type-import edges', () => {
+    const root = resolve(fixturesDir, 'exports-chain');
+    const graph = buildGraph(resolve(root, 'src/types-only.ts'), root);
+
+    const edge = graph.edges.find(e => e.from === 'src/types-only.ts');
+    expect(edge).toBeDefined();
+    expect(edge!.type).toBe('type-import');
+    expect(edge!.symbols).toEqual(['Config']);
+  });
+
+  it('traverses full re-export chain', () => {
+    const root = resolve(fixturesDir, 'exports-chain');
+    const entries = [
+      resolve(root, 'src/app.ts'),
+      resolve(root, 'src/other.ts'),
+      resolve(root, 'src/types-only.ts'),
+    ];
+    const graph = buildGraph(entries, root);
+
+    expect(graph.nodes).toHaveLength(6);
+
+    // app.ts → barrel.ts → lib/index.ts → lib/core.ts (chain of 3)
+    expect(graph.edges).toContainEqual(expect.objectContaining({
+      from: 'src/app.ts', to: 'src/barrel.ts', symbols: ['format'],
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
+      from: 'src/barrel.ts', to: 'lib/index.ts', type: 're-export', symbols: ['format'],
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
+      from: 'lib/index.ts', to: 'lib/core.ts', type: 're-export',
+    }));
+
+    // other.ts → lib/index.ts with validate
+    expect(graph.edges).toContainEqual(expect.objectContaining({
+      from: 'src/other.ts', to: 'lib/index.ts', symbols: ['validate'],
+    }));
+
+    // types-only.ts → lib/index.ts with Config (type-import)
+    expect(graph.edges).toContainEqual(expect.objectContaining({
+      from: 'src/types-only.ts', to: 'lib/index.ts', type: 'type-import', symbols: ['Config'],
+    }));
+  });
+
+  it('does not include symbols when import has none (namespace)', () => {
+    const root = resolve(fixturesDir, 're-exports');
+    const graph = buildGraph(resolve(root, 'src/index.ts'), root);
+
+    const starEdge = graph.edges.find(e => e.to === 'src/utils.ts');
+    expect(starEdge).toBeDefined();
+    expect(starEdge!.symbols).toBeUndefined();
   });
 });

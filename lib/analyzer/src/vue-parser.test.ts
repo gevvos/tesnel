@@ -109,21 +109,21 @@ describe('buildGraph with .vue files', () => {
       'src/composables/useFormatter.ts',
     ]);
 
-    expect(graph.edges).toContainEqual({
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/App.vue',
       to: 'src/HelloWorld.vue',
       type: 'static-import',
-    });
-    expect(graph.edges).toContainEqual({
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/App.vue',
       to: 'src/composables/useCounter.ts',
       type: 'static-import',
-    });
-    expect(graph.edges).toContainEqual({
+    }));
+    expect(graph.edges).toContainEqual(expect.objectContaining({
       from: 'src/HelloWorld.vue',
       to: 'src/composables/useFormatter.ts',
       type: 'static-import',
-    });
+    }));
 
     expect(graph.errors).toEqual([]);
     expect(graph.edges).toHaveLength(3);
