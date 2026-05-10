@@ -1,52 +1,46 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { resolve } from 'path';
-import { mcpCommand } from './mcp.js';
+import { writeFileSync, mkdirSync } from 'fs';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { createServer } from '../../mcp/server.js';
 
-afterEach(() => {
-  vi.restoreAllMocks();
-});
+const tmpDir = resolve(__dirname, '../../../.tmp-test-mcp-cmd');
+const testDataPath = resolve(tmpDir, 'output.json');
 
 describe('mcpCommand', () => {
-  it('exits with error when data file does not exist', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error('process.exit');
-    });
+  it('starts server that works with valid data path', async () => {
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(testDataPath, JSON.stringify({
+      meta: { version: '0.1.0', entry: './index.ts', root: '/', generatedAt: '', totalFiles: 1, totalEdges: 0, totalCycles: 0 },
+      tree: [], graph: { nodes: [{ id: 'index.ts', directory: '.' }], edges: [] }, cycles: [], errors: [],
+    }));
 
-    await expect(
-      mcpCommand({ data: '/nonexistent/path/output.json' }),
-    ).rejects.toThrow('process.exit');
+    const server = createServer(testDataPath);
+    const [ct, st] = InMemoryTransport.createLinkedPair();
+    await server.connect(st);
+    const client = new Client({ name: 'test', version: '1.0.0' });
+    await client.connect(ct);
 
-    expect(mockExit).toHaveBeenCalledWith(1);
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining('tesnel data not found'),
-    );
+    const result = await client.callTool({ name: 'tesnel_get_stats', arguments: {} });
+    const content = result.content as Array<{ type: string; text: string }>;
+    const meta = JSON.parse(content[0].text);
+
+    expect(meta.totalFiles).toBe(1);
+    expect(meta.entry).toBe('./index.ts');
   });
 
-  it('shows hint to run analyze first', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error('process.exit');
-    });
+  it('starts server even without data file', async () => {
+    const server = createServer('/nonexistent/output.json');
+    const [ct, st] = InMemoryTransport.createLinkedPair();
+    await server.connect(st);
+    const client = new Client({ name: 'test', version: '1.0.0' });
+    await client.connect(ct);
 
-    await expect(
-      mcpCommand({ data: '/nonexistent/output.json' }),
-    ).rejects.toThrow();
+    const result = await client.callTool({ name: 'tesnel_get_stats', arguments: {} });
 
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining('tesnel analyze'),
-    );
-  });
-
-  it('defaults to .tesnel/output.json path', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error('process.exit');
-    });
-
-    await expect(mcpCommand({})).rejects.toThrow('process.exit');
-
-    const errorCall = (console.error as ReturnType<typeof vi.fn>).mock.calls[0][0];
-    expect(errorCall).toContain('.tesnel/output.json');
+    expect(result.isError).toBe(true);
+    const content = result.content as Array<{ type: string; text: string }>;
+    expect(content[0].text).toContain('tesnel analyze');
   });
 });

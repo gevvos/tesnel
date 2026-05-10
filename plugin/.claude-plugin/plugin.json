@@ -1,0 +1,9 @@
+{
+  "name": "tesnel",
+  "version": "0.1.0",
+  "description": "Dependency graph analysis for TypeScript, JavaScript, and Vue projects. Gives Claude structured access to project architecture via MCP tools.",
+  "author": {
+    "name": "Gevorg Voskanyan"
+  },
+  "repository": "https://github.com/gevvos/tesnel"
+}

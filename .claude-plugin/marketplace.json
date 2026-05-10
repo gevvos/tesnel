@@ -1,0 +1,15 @@
+{
+  "name": "tesnel-marketplace",
+  "plugins": [
+    {
+      "name": "tesnel",
+      "description": "Dependency graph analysis for TypeScript, JavaScript, and Vue projects. MCP tools + skill for architecture analysis.",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/gevvos/tesnel.git",
+        "path": "plugin",
+        "ref": "main"
+      }
+    }
+  ]
+}

@@ -143,28 +143,57 @@ Exit code 0 если циклов нет, 1 если есть. Удобно дл
 
 ### MCP сервер (Claude Code)
 
-```bash
-# Запуск MCP сервера (читает .tesnel/output.json из CWD)
-tesnel mcp
+Даёт ИИ-агентам структурированный доступ к графу зависимостей — не нужно читать файлы по одному.
 
-# Или указать путь к данным
-tesnel mcp --data ./deps.json
+**1. Сначала проанализируйте проект:**
+
+```bash
+tesnel analyze ./src/main.ts
 ```
 
-Добавьте в `.mcp.json` или настройки Claude Code:
+**2. Подключите к Claude Code:**
+
+```bash
+# npm
+claude mcp add --transport stdio tesnel -- npx -y @gevvos/tesnel mcp
+
+# pnpm
+claude mcp add --transport stdio tesnel -- pnpm dlx @gevvos/tesnel mcp
+```
+
+Готово. Перезапустите Claude Code — инструменты доступны.
+
+**Как это работает:** Claude Code запускает `npx -y @gevvos/tesnel mcp` в директории проекта. Сервер читает `.tesnel/output.json` и предоставляет 5 read-only инструментов через stdio.
+
+**Свой путь к данным:**
+
+```bash
+claude mcp add --transport stdio tesnel -- npx -y @gevvos/tesnel mcp --data ./deps.json
+```
+
+**Для всей команды** — добавьте `.mcp.json` в корень репозитория:
 
 ```json
 {
   "mcpServers": {
     "tesnel": {
       "command": "npx",
-      "args": ["tesnel", "mcp"]
+      "args": ["-y", "@gevvos/tesnel", "mcp"]
     }
   }
 }
 ```
 
-**Доступные tools:**
+Все, кто клонирует репо, получат MCP-сервер автоматически.
+
+**Или установите плагин Claude Code** — MCP-инструменты + скилл `/tesnel` в одном пакете:
+
+```bash
+claude plugin marketplace add https://github.com/gevvos/tesnel
+claude plugin install tesnel@tesnel-marketplace
+```
+
+**Доступные инструменты:**
 
 | Tool | Описание |
 |------|----------|

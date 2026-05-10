@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "tesnel": {
+      "command": "npx",
+      "args": ["-y", "@gevvos/tesnel", "mcp"]
+    }
+  }
+}

@@ -72,6 +72,22 @@ beforeAll(async () => {
   await client.connect(clientTransport);
 });
 
+describe('MCP Server without data', () => {
+  it('returns helpful error when data file is missing', async () => {
+    const server = createServer('/nonexistent/path.json');
+    const [ct, st] = InMemoryTransport.createLinkedPair();
+    await server.connect(st);
+    const noDataClient = new Client({ name: 'test-no-data', version: '1.0.0' });
+    await noDataClient.connect(ct);
+
+    const result = await noDataClient.callTool({ name: 'tesnel_get_stats', arguments: {} });
+    const content = result.content as Array<{ type: string; text: string }>;
+
+    expect(result.isError).toBe(true);
+    expect(content[0].text).toContain('tesnel analyze');
+  });
+});
+
 describe('MCP Server', () => {
   it('tesnel_get_stats returns meta info', async () => {
     const result = await client.callTool({ name: 'tesnel_get_stats', arguments: {} });
