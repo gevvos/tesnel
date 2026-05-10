@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/gevvos/tesnel/compare/tesnel-v0.5.0...tesnel-v0.6.0) (2026-05-10)
+
+
+### Features
+
+* add Claude Code plugin with MCP server and skill ([199556f](https://github.com/gevvos/tesnel/commit/199556f30ade5a1cd0438e5a0720294e23d48904))
+* migrate MCP server to registerTool API and add graceful degradation ([7c78bb6](https://github.com/gevvos/tesnel/commit/7c78bb655c03357def5083ef6de0aeb2e7273925))
+
 ## [0.5.0](https://github.com/gevvos/tesnel/compare/tesnel-v0.4.0...tesnel-v0.5.0) (2026-05-09)
 
 
